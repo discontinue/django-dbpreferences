@@ -1,0 +1,24 @@
+
+=============
+ description
+=============
+
+With django-dbpreferences you can store some app preferences into the database.
+
+A django app defines a form with initial values. The form cleaned data dict would
+be stored serialized into the database. The app can easy get the current preference
+dict and the user can easy edit the values in the django admin panel.
+
+
+=======
+ links
+=======
+
+:homepage:
+  http://code.google.com/p/django-dbpreferences/
+
+:SVN:
+ http://django-dbpreferences.googlecode.com/svn/trunk/
+
+
+*(Readme text $Rev$)*
