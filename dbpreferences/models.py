@@ -54,42 +54,32 @@ class PreferencesManager(models.Manager):
         new_entry.save()
         return form_dict
 
-#    def get_pref(self, form):
-#        """
-#        returns the preferences for the given form
-#        stores the preferences into the database, if not exist.
-#        """
-#        assert isinstance(form, forms.Form), ("You must give a form instance and not only the class!")
-#
-#        current_site = Site.objects.get_current()
-#        app_label = form.Meta.app_label
-#        form_name = form.__class__.__name__
-#
-#        try:
-#            db_entry = self.get(site=current_site, app_label=app_label, form_name=form_name)
-#        except Preference.DoesNotExist:
-#            # Save initial form values into database
-#            form_dict = self.save_form_init(form, current_site, app_label, form_name)
-#        else:
-#            form_dict = db_entry.preferences
-#
-#        return form_dict
-
-
-
-class DictFormWidget(forms.Textarea):
-    """ form widget for preferences dict """
-    def render(self, name, value, attrs=None):
+    def get_pref(self, form):
         """
-        FIXME: Can we get the original non-serialized db value here?
+        returns the preferences for the given form
+        stores the preferences into the database, if not exist.
         """
-        value = serialize(value)
-        return super(DictFormWidget, self).render(name, value, attrs)
+        assert isinstance(form, forms.Form), ("You must give a form instance and not only the class!")
+
+        current_site = Site.objects.get_current()
+        app_label = form.Meta.app_label
+        form_name = form.__class__.__name__
+
+        try:
+            db_entry = self.get(site=current_site, app_label=app_label, form_name=form_name)
+        except Preference.DoesNotExist:
+            # Save initial form values into database
+            form_dict = self.save_form_init(form, current_site, app_label, form_name)
+        else:
+            form_dict = db_entry.preferences
+
+        return form_dict
+
 
 
 class DictFormField(forms.CharField):
     """ form field for preferences dict """
-    widget = DictFormWidget
+#    widget = DictFormWidget
 
     def clean(self, value):
         """
@@ -110,12 +100,6 @@ class DictField(models.TextField):
     """
     __metaclass__ = models.SubfieldBase
 
-    def to_python(self, value):
-        """ decode the data dict using simplejson.loads() """
-        if isinstance(value, dict):
-            return value
-        return deserialize(value)
-
     def get_db_prep_save(self, value):
         "Returns field's value prepared for saving into a database."
         assert isinstance(value, dict)
@@ -124,7 +108,6 @@ class DictField(models.TextField):
     def formfield(self, **kwargs):
         # Always use own form field and widget:
         kwargs['form_class'] = DictFormField
-        kwargs['widget'] = DictFormWidget
         return super(DictField, self).formfield(**kwargs)
 
 
@@ -152,6 +135,9 @@ class Preference(models.Model):
         related_name="%(class)s_lastupdateby", help_text="User as last edit the current page.",)
 
     #__________________________________________________________________________
+
+    def get_preferences(self):
+        return deserialize(self.preferences)
 
     def get_form_class(self):
         """ returns the form class for this preferences item """
