@@ -42,7 +42,7 @@ def get_long_description():
 
 setup(
     name='django-dbpreferences',
-    version=PYLUCID_VERSION_STRING,
+    version=VERSION_STRING,
     description='With django-dbpreferences you can store some app preferences into the database.',
     long_description = get_long_description(),
     author = get_authors(),
