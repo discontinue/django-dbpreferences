@@ -33,7 +33,7 @@ import compiler
 
 
 # For visitName()
-NAME_MAP = {"None": None, "True": True, "False": False}
+NAME_MAP = {"none": None, "true": True, "false": False}
 
 # For visitGetattr(): key is the callable name and value is the module name
 ALLOWED_CALLABLES = {
@@ -67,8 +67,9 @@ class SafeEval(object):
         )
 
     def visitName(self, node, **kw):
-        if node.name in NAME_MAP:
-            return NAME_MAP[node.name]
+        name_lower = node.name.lower()
+        if name_lower in NAME_MAP:
+            return NAME_MAP[name_lower]
 
         raise UnsafeSourceError(
             "Strings must be quoted", node.name, node
@@ -160,7 +161,7 @@ class UnsafeSourceError(DataEvalError):
         self.lineno = getattr(node, "lineno", None)
 
     def __repr__(self):
-        return "%s in line %d: '%s'" % (self.error, self.lineno, self.descr)
+        return "Error '%s' in line %r: '%s'" % (self.error, self.lineno, self.descr)
 
     __str__ = __repr__
 
@@ -187,6 +188,8 @@ class TestDataEval(unittest.TestCase):
         self.assert_eval(True)
         self.assert_eval(False)
         self.assert_eval([True, False])
+        self.failUnlessEqual(data_eval("true"), True)
+        self.failUnlessEqual(data_eval("TRUE"), True)
 
     def testConst(self):
         self.assert_eval(1)
