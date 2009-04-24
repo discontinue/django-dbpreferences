@@ -19,6 +19,7 @@ if __name__ == "__main__":
     import os
     os.environ["DJANGO_SETTINGS_MODULE"] = "django.conf.global_settings"
 
+import sys
 import pprint
 
 from django import forms
@@ -137,7 +138,13 @@ class Preference(models.Model):
     #__________________________________________________________________________
 
     def get_preferences(self):
-        return deserialize(self.preferences)
+        try:
+            return deserialize(self.preferences)
+        except Exception, err:
+            etype, evalue, etb = sys.exc_info()
+            evalue = etype("Error getting preferences '%s.%s.%s': %s" % (
+                self.site, self.app_label, self.form_name, evalue))
+            raise etype, evalue, etb
 
     def get_form_class(self):
         """ returns the form class for this preferences item """
