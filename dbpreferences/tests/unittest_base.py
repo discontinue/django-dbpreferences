@@ -8,7 +8,7 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
-from django.test import TestCase
+from django.test import TransactionTestCase
 from django.test.client import Client
 from django.contrib.auth.models import User
 
@@ -16,7 +16,7 @@ from BrowserDebug import debug_response
 
 
 
-class BaseTestCase(TestCase):
+class BaseTestCase(TransactionTestCase):
     # Open only one traceback in a browser (=True) ?
     one_browser_traceback = True
     _open = []
