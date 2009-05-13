@@ -31,7 +31,10 @@ class FormMetaWithoutAppLabel(DBPreferencesBaseForm):
 
 
 
-class TestDBPref(BaseTestCase):   
+class TestDBPref(BaseTestCase):
+    def setUp(self):
+        Preference.objects.all().delete()
+    
     def test_form_without_meta(self):
         self.failUnlessRaises(AttributeError, FormWithoutMeta)
         
