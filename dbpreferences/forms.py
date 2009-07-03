@@ -10,33 +10,49 @@ class DBPreferencesBaseForm(forms.Form):
     def __init__(self, *args, **kwargs):
         assert(isinstance(self.Meta.app_label, basestring))
         super(DBPreferencesBaseForm, self).__init__(*args, **kwargs)
-        
+
     def save_form_init(self):
         current_site = Site.objects.get_current()
         app_label = self.Meta.app_label
         form_name = self.__class__.__name__
-        
+
         try:
             Preference.objects.get(site=current_site, app_label=app_label, form_name=form_name).delete()
         except Preference.DoesNotExist:
-            pass            
-        
+            pass
+
         # Save initial form values into database
         form_dict = Preference.objects.save_form_init(
             form=self, site=current_site, app_label=app_label, form_name=form_name)
-        
+
         return form_dict
-        
+
+    def __setitem__(self, key, value):
+        assert self.is_bound == True
+        self.data[key] = value
+
+    def save(self):
+        self.instance.preferences = self.data
+        self.instance.save()
+
     def get_preferences(self):
+        """ return a dict with the current preferences """
+        try:
+            self.instance = self.get_db_instance()
+        except Preference.DoesNotExist:
+            self.data = self.save_form_init()
+        else:
+            self.data = self.instance.get_preferences()
+
+        self.is_bound = True
+
+        return self.data
+
+    def get_db_instance(self):
+        """ returns the database entry instance """
         current_site = Site.objects.get_current()
         app_label = self.Meta.app_label
         form_name = self.__class__.__name__
-        
-        try:
-            db_entry = Preference.objects.get(site=current_site, app_label=app_label, form_name=form_name)
-        except Preference.DoesNotExist:
-            form_dict = self.save_form_init()
-        else:
-            form_dict = db_entry.get_preferences()
-        
-        return form_dict
+
+        self.instance = Preference.objects.get(site=current_site, app_label=app_label, form_name=form_name)
+        return self.instance

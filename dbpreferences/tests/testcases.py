@@ -34,13 +34,13 @@ class FormMetaWithoutAppLabel(DBPreferencesBaseForm):
 class TestDBPref(BaseTestCase):
     def setUp(self):
         Preference.objects.all().delete()
-    
+
     def test_form_without_meta(self):
         self.failUnlessRaises(AttributeError, FormWithoutMeta)
-        
+
     def test_form_meta_without_app_label(self):
         self.failUnlessRaises(AttributeError, FormMetaWithoutAppLabel)
-        
+
     def test_form_api(self):
         form = UnittestForm()
         # Frist time, the data would be inserted into the database
@@ -51,7 +51,7 @@ class TestDBPref(BaseTestCase):
             "It's not dict, it's: %s - %r" % (type(pref_data), pref_data))
         self.failUnlessEqual(pref_data,
             {'count': 10, 'foo_bool': True, 'font_size': 0.7, 'subject': 'foobar'})
-        
+
         form = UnittestForm()
         self.failUnless(Preference.objects.count() == 1)
         pref_data = form.get_preferences()
@@ -60,36 +60,46 @@ class TestDBPref(BaseTestCase):
             "It's not dict, it's: %s - %r" % (type(pref_data), pref_data))
         self.failUnlessEqual(pref_data,
             {'count': 10, 'foo_bool': True, 'font_size': 0.7, 'subject': 'foobar'})
-        
+
+        # Change a value
+        form["count"] = 20
+        form.save()
+
+        # Check the changes value
+        form = UnittestForm()
+        pref_data = form.get_preferences()
+        self.failUnlessEqual(pref_data,
+            {'count': 20, 'foo_bool': True, 'font_size': 0.7, 'subject': 'foobar'})
+
     def test_admin_edit(self):
         # Create one db entry
         form = UnittestForm()
         pref_data = form.get_preferences()
         self.failUnless(Preference.objects.count() == 1)
-        
-        pk = Preference.objects.all()[0].pk        
+
+        pk = Preference.objects.all()[0].pk
         url = reverse("admin_dbpref_edit_form", kwargs={"pk":pk})
 
         self.login(usertype="staff")
-        
+
         response = self.client.get(url)
         self.failUnlessEqual(response.status_code, 200)
         self.assertResponse(response,
-            must_contain=("Change Preferences for","dbpreferences.tests.UnittestForm"),
-            must_not_contain=("Error","Traceback")
+            must_contain=("Change Preferences for", "dbpreferences.tests.UnittestForm"),
+            must_not_contain=("Error", "Traceback")
         )
-        
+
         response = self.client.post(url, data={
             "subject": "new content", "count": 5, "font_size": 1, "_save":"Save"})
         self.failUnlessEqual(response.status_code, 302)
-        
+
         response = self.client.get(url)
         self.failUnlessEqual(response.status_code, 200)
         self.assertResponse(response,
-            must_contain=("Change Preferences for","dbpreferences.tests.UnittestForm"),
-            must_not_contain=("Error","Traceback")
+            must_contain=("Change Preferences for", "dbpreferences.tests.UnittestForm"),
+            must_not_contain=("Error", "Traceback")
         )
-        
+
         form = UnittestForm()
         self.failUnless(Preference.objects.count() == 1)
         pref_data = form.get_preferences()
