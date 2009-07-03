@@ -28,7 +28,10 @@ class DBPreferencesBaseForm(forms.Form):
         return form_dict
 
     def __setitem__(self, key, value):
-        assert self.is_bound == True
+        if self.data == {}:
+            # set self.data with the preferences values
+            self.get_preferences()
+
         self.data[key] = value
 
     def save(self):

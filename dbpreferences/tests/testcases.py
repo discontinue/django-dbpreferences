@@ -65,11 +65,16 @@ class TestDBPref(BaseTestCase):
         form["count"] = 20
         form.save()
 
+        # Change a value without 
+        form = UnittestForm()
+        form["foo_bool"] = False
+        form.save()
+
         # Check the changes value
         form = UnittestForm()
         pref_data = form.get_preferences()
         self.failUnlessEqual(pref_data,
-            {'count': 20, 'foo_bool': True, 'font_size': 0.7, 'subject': 'foobar'})
+            {'count': 20, 'foo_bool': False, 'font_size': 0.7, 'subject': 'foobar'})
 
     def test_admin_edit(self):
         # Create one db entry
