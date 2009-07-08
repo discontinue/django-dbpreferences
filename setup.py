@@ -44,16 +44,16 @@ setup(
     name='django-dbpreferences',
     version=VERSION_STRING,
     description='With django-dbpreferences you can store some app preferences into the database.',
-    long_description = get_long_description(),
-    author = get_authors(),
-    maintainer = "Jens Diemer",
+    long_description=get_long_description(),
+    author=get_authors(),
+    maintainer="Jens Diemer",
     url='http://code.google.com/p/django-dbpreferences/',
     packages=find_packages(),
     include_package_data=True, # include package data under svn source control
     zip_safe=False,
-    classifiers = [
+    classifiers=[
         "Development Status :: 4 - Beta",
-#        "Development Status :: 5 - Production/Stable",
+        "Development Status :: 5 - Production/Stable",
         "Environment :: Web Environment",
         "Intended Audience :: Developers",
 #        "Intended Audience :: Education",

@@ -9,6 +9,17 @@ A django app defines a form with initial values. The form cleaned data dict woul
 be stored serialized into the database. The app can easy get the current preference
 dict and the user can easy edit the values in the django admin panel.
 
+=========
+ history
+=========
+
+- v0.2.0
+
+  - Add UserSettings, see: http://www.jensdiemer.de/_command/118/blog/detail/64/ (de)
+
+- v0.1.0
+
+  - first version cut out from PyLucid CMS - http://www.pylucid.org
 
 =======
  links
