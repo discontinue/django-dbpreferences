@@ -39,8 +39,14 @@ class SettingsDict(dict):
             settings_dict = self._model_instance.get_settings()
             dict.update(self, settings_dict)
 
+        self._loaded = True
+
     def save(self):
         """ Save the current settings into database """
+        if not self.user.is_authenticated():
+            # Don't save values for anonymous user!
+            return
+
         if self._model_instance == None:
             self._model_instance, created = UserSettings.objects.get_or_create(user=self.user,
                 defaults={"settings": self, "createby": self.user, "lastupdateby": self.user}

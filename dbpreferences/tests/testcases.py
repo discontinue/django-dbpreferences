@@ -121,6 +121,10 @@ class TestDBPref(BaseTestCase):
 
 
 class UserSettingsTestCache(dict):
+    def __init__(self):
+        self.cache_hit = 0
+        super(UserSettingsTestCache, self).__init__()
+
     def __setitem__(self, key, value):
         assert isinstance(value, tuple) == True
         assert isinstance(key, int)
@@ -128,11 +132,25 @@ class UserSettingsTestCache(dict):
         assert isinstance(value[1], dict)
         dict.__setitem__(self, key, value)
 
+    def __getitem__(self, key):
+        self.cache_hit += 1
+        return dict.__getitem__(self, key)
+
 
 class TestUserSettings(BaseTestCase):
     def setUp(self):
+        self._saved = 0
+        self._init = 0
+        signals.post_save.connect(self._post_save_handler, sender=UserSettings)
+        signals.pre_init.connect(self._post_init_handler, sender=UserSettings)
+
         models._USER_SETTINGS_CACHE = UserSettingsTestCache()
         UserSettings.objects.all().delete()
+
+    def _post_save_handler(self, **kwargs):
+        self._saved += 1
+    def _post_init_handler(self, **kwargs):
+        self._init += 1
 
     def test_cache(self):
         """ Test if USER_SETTINGS_CACHE is UserSettingsTestCache witch has some assert statements """
@@ -141,17 +159,7 @@ class TestUserSettings(BaseTestCase):
             models._USER_SETTINGS_CACHE["foo"] = "Bar"
         self.failUnlessRaises(AssertionError, test)
 
-    def _post_save_handler(self, **kwargs):
-        self._saved += 1
-    def _post_init_handler(self, **kwargs):
-        self._init += 1
-
     def test_low_level(self):
-        self._saved = 0
-        self._init = 0
-        signals.post_save.connect(self._post_save_handler, sender=UserSettings)
-        signals.pre_init.connect(self._post_init_handler, sender=UserSettings)
-
         self.failUnlessEqual(len(models._USER_SETTINGS_CACHE), 0)
 
         user = self.get_user(usertype="staff")
@@ -191,6 +199,21 @@ class TestUserSettings(BaseTestCase):
 
         self.failUnlessEqual(self._init, 2)
         self.failUnlessEqual(self._saved, 1)
+        self.failUnlessEqual(models._USER_SETTINGS_CACHE.cache_hit, 2)
+
+    def test_load(self):
+        """
+        The load() method in middleware.SettingsDict would be called on every get, getitem, etc.
+        But the real loading should only done one time.
+        """
+        user = self.get_user(usertype="staff")
+        user_settings = SettingsDict(user)
+        self.failUnlessEqual(models._USER_SETTINGS_CACHE.cache_hit, 0)
+        user_settings.get("foo", "bar")
+        user_settings.get("foo", "bar")
+        user_settings["foo"]
+        user_settings["foo"]
+        self.failUnlessEqual(models._USER_SETTINGS_CACHE.cache_hit, 1)
 
     def test_view_base(self):
         url = reverse("test_user_settings", kwargs={"test_name": "base_test", "key": "Foo", "value": "Bar"})
@@ -233,46 +256,30 @@ class TestUserSettings(BaseTestCase):
             self.failUnlessEqual(response.status_code, 200)
             self.failUnlessEqual(response.content, str(no))
 
+        self.failUnlessEqual(self._init, 2)
+        self.failUnlessEqual(self._saved, 2)
+        self.failUnlessEqual(models._USER_SETTINGS_CACHE.cache_hit, 10)
 
-#    def test1(self):
-#        UserSettings.objects.all()
-#        self.failUnless(UserSettings.objects.count() == 0)
-#        user = self.get_user(usertype="staff")
-#
-#        # Create a new settings:
-#        settings1 = {"foo":1, "bar":True}
-#        user_settings = UserSettings(user=user, settings=settings1)
-#        user_settings.save()
-#
-#        self.failUnless(UserSettings.objects.count() == 1)
-#
-#        settings2 = UserSettings.objects.get_settings(user)
-#        self.failUnlessEqual(settings1, settings2)
-#
-#        # change a value
-#        settings2["bar"] = False
-#        settings2.save() # Save it into DB
-#
-#        #UserSettings.objects.change_and_save(user, bar=False)
-#        user_settings = UserSettings.objects.get_settings(user)
-#        self.failUnlessEqual(user_settings, {"foo":1, "bar":False})
-#
-#    def test_get_or_create(self):
-#        UserSettings.objects.all()
-#        self.failUnless(UserSettings.objects.count() == 0)
-#        user = self.get_user(usertype="staff")
-#
-#        settings1, created = UserSettings.objects.get_or_create_settings(user, FooBar=123)
-#
-#        print settings1
-#
-#
-#
-#    def test_anonymous(self):
-#        user = AnonymousUser()
-#        self.failUnlessRaises(UserSettings.DoesNotExist, UserSettings.objects.get_settings, user)
-#
-##    def
+    def test_anonymous(self):
+        """
+        The settings would be not saved for anonymous users.
+        We allways get the default value back.
+        """
+        user = AnonymousUser()
+
+        user_settings = SettingsDict(user)
+        user_settings["Foo"] = "bar"
+        # in a request, we get values set in the past
+        self.failUnlessEqual(user_settings["Foo"], "bar")
+
+        # For anonymous user, save() does nothing:
+        user_settings.save()
+        self.failUnlessEqual(self._saved, 0)
+
+        # In "the next request" we can't get the old value "bar"
+        user_settings = SettingsDict(user)
+        self.failUnlessEqual(user_settings.get("Foo", "not the initial value"), "not the initial value")
+
 
 if __name__ == "__main__":
     # Run this unittest directly
