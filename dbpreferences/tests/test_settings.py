@@ -5,6 +5,10 @@ import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
 
+DEBUG = True
+
+DATABASE_ENGINE = "sqlite3"
+DATABASE_NAME = ":memory:"
 
 INSTALLED_APPS = (
     'django.contrib.auth',
@@ -12,12 +16,16 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.admin',
-    
+
     'dbpreferences',
 )
 
-DATABASE_ENGINE = "sqlite3"
-DATABASE_NAME = ":memory:"
+MIDDLEWARE_CLASSES = (
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+
+    'dbpreferences.middleware.DBPreferencesMiddleware',
+)
 
 SITE_ID = 1
 

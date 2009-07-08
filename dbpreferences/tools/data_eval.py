@@ -88,7 +88,7 @@ class SafeEval(object):
         return - number # return the negative number
 
     def visitDict(self, node, **kw):
-        return dict([(self.visit(k),self.visit(v)) for k,v in node.items])
+        return dict([(self.visit(k), self.visit(v)) for k, v in node.items])
 
     def visitTuple(self, node, **kw):
         return tuple(self.visit(i) for i in node.nodes)
@@ -129,8 +129,10 @@ def data_eval(source):
     Compile the given source string to AST objects and evaluate only data
     type objects.
     """
-    if not isinstance(source, basestring):
-        raise DataEvalError("source must be string/unicode!")
+    if isinstance(source, dict):
+        return source
+    elif not isinstance(source, basestring):
+        raise DataEvalError("source must be string/unicode! (It's type: %r)" % type(source))
     source = source.replace("\r\n", "\n").replace("\r", "\n")
 
     try:
@@ -154,7 +156,7 @@ class EvalSyntaxError(DataEvalError):
 
 class UnsafeSourceError(DataEvalError):
     """ Error class for the SafeEval AST walker """
-    def __init__(self, error, descr = None, node = None):
+    def __init__(self, error, descr=None, node=None):
         self.error = error
         self.descr = descr
         self.node = node
@@ -203,12 +205,12 @@ class TestDataEval(unittest.TestCase):
 
     def testTuple(self):
         self.assert_eval(())
-        self.assert_eval((1,2))
+        self.assert_eval((1, 2))
         self.assert_eval(("1", u"2", None, True, False))
 
     def testList(self):
         self.assert_eval([])
-        self.assert_eval([1,2,-3,-4.41])
+        self.assert_eval([1, 2, -3, -4.41])
         self.assert_eval(["foo", u"bar", None, True, False])
 
     def testDict(self):

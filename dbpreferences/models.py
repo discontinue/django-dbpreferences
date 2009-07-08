@@ -47,10 +47,10 @@ class PreferencesManager(models.Manager):
         """ save the initial form values as the preferences into the database """
         form_dict = forms_utils.get_init_dict(form)
         new_entry = Preference(
-            site = site,
-            app_label = app_label,
-            form_name = form_name,
-            preferences = form_dict,
+            site=site,
+            app_label=app_label,
+            form_name=form_name,
+            preferences=form_dict,
         )
         new_entry.save()
         return form_dict
@@ -162,9 +162,67 @@ class Preference(models.Model):
         permissions = (("can_change_preferences", "Can change preferences"),)
         ordering = ("site", "app_label", "form_name")
         verbose_name = verbose_name_plural = "preferences"
-#        db_table = 'PyLucid_preference'
-#        app_label = 'PyLucid'
 
+
+#-----------------------------------------------------------------------------
+
+_USER_SETTINGS_CACHE = {}
+
+class UserSettingsManager(models.Manager):
+    def get_settings(self, user):
+        """ Cached access for getting UserSettings instance and settings. """
+        if not user.is_authenticated():
+            raise UserSettings.DoesNotExist("No settings for anonymous!")
+
+        try:
+            (user_settings_instance, user_settings) = _USER_SETTINGS_CACHE[user.pk]
+            print "Use cache:", id(_USER_SETTINGS_CACHE), _USER_SETTINGS_CACHE
+        except KeyError:
+            user_settings_instance = self.get(user=user)
+            user_settings = user_settings_instance.get_settings()
+            _USER_SETTINGS_CACHE[user.pk] = (user_settings_instance, user_settings)
+
+        return user_settings_instance, user_settings
+
+
+class UserSettings(models.Model):
+    objects = UserSettingsManager()
+
+    user = models.ForeignKey(User, unique=True, related_name="%(class)s_user")
+    settings = DictField(null=False, blank=False,
+        help_text="serialized user settings data dictionary")
+
+    createtime = models.DateTimeField(auto_now_add=True, help_text="Create time",)
+    createby = models.ForeignKey(User, editable=False,
+        related_name="%(class)s_createby", help_text="User how has create this entry.",)
+    lastupdatetime = models.DateTimeField(auto_now=True, help_text="Time of the last change.",)
+    lastupdateby = models.ForeignKey(User, editable=False,
+        related_name="%(class)s_lastupdateby", help_text="User how has last edit this entry.",)
+
+    #__________________________________________________________________________
+
+    def get_settings(self):
+        """ get the deserialized settings """
+        try:
+            return deserialize(self.settings)
+        except Exception, err:
+            etype, evalue, etb = sys.exc_info()
+            evalue = etype("Error deserialize user settings for user %r: %s" % (self.user, evalue))
+            raise etype, evalue, etb
+
+    #__________________________________________________________________________
+
+    def save(self, *args, **kwargs):
+        """ save and update the cache """
+        _USER_SETTINGS_CACHE[self.user.pk] = (self, self.settings) # Update cache
+        return super(UserSettings, self).save(*args, **kwargs)
+
+    def __unicode__(self):
+        return u"UserSettings for %r: %r" % (self.user, self.settings)
+
+    class Meta:
+        ordering = ("user",)
+        verbose_name = verbose_name_plural = "User settings"
 
 
 if __name__ == "__main__":

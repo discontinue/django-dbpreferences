@@ -20,7 +20,7 @@ class BaseTestCase(TransactionTestCase):
     # Open only one traceback in a browser (=True) ?
     one_browser_traceback = True
     _open = []
-    
+
     TEST_USERS = {
         "superuser": {
             "username": "superuser",
@@ -44,11 +44,11 @@ class BaseTestCase(TransactionTestCase):
             "is_superuser": False,
         },
     }
-    
+
     def _pre_setup(self):
         super(BaseTestCase, self).setUp()
         self._create_testusers()
-    
+
     def login(self, usertype):
         """
         Login the user defined in self.TEST_USERS
@@ -56,10 +56,10 @@ class BaseTestCase(TransactionTestCase):
         ok = self.client.login(username=self.TEST_USERS[usertype]["username"],
                                password=self.TEST_USERS[usertype]["password"])
         self.failUnless(ok, "Can't login test user '%s'!" % usertype)
-        
-    def _get_user(self, usertype):
+
+    def get_user(self, usertype):
         return User.objects.get(username=self.TEST_USERS[usertype]["username"])
-        
+
     def _create_testusers(self):
         """
         Create all available testusers.
