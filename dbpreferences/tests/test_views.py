@@ -7,7 +7,6 @@ save_count = 0
 def post_save_handler(sender, **kwargs):
     global save_count
     save_count += 1
-    print "UserSettings save_count!"
 
 init_count = 0
 def pre_init_handler(*args, **kwargs):

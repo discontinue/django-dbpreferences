@@ -10,12 +10,6 @@ class SettingsDict(dict):
         self._loaded = False
         self._model_instance = None
         super(SettingsDict, self).__init__(*args, **kwargs)
-#
-#    def getvalue(self, **kwargs):
-#        self.load()
-#        for key, value in kwargs.iteritems():
-#            if not key in self:
-#                self[key] = value
 
     def get(self, key, default):
         self.load()
@@ -36,7 +30,6 @@ class SettingsDict(dict):
         if self._loaded:
             return
 
-        print "load:",
         try:
             self._model_instance, settings_dict = UserSettings.objects.get_settings(self.user)
         except UserSettings.DoesNotExist:
@@ -44,7 +37,6 @@ class SettingsDict(dict):
         else:
             # Use existing data
             settings_dict = self._model_instance.get_settings()
-            print settings_dict
             dict.update(self, settings_dict)
 
     def save(self):
@@ -54,10 +46,8 @@ class SettingsDict(dict):
                 defaults={"settings": self, "createby": self.user, "lastupdateby": self.user}
             )
             if created:
-                print "UserSettings created."
                 return
 
-        print "UserSettings updated."
         self._model_instance.settings = self
         self._model_instance.save()
 
@@ -74,7 +64,7 @@ class DBPreferencesMiddleware(object):
             pass
         else:
             if modified:
-                print "was modified -> save"
+                # "was modified -> save"
                 request.user_settings.save()
 
         return response

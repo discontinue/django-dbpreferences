@@ -176,7 +176,6 @@ class UserSettingsManager(models.Manager):
 
         try:
             (user_settings_instance, user_settings) = _USER_SETTINGS_CACHE[user.pk]
-            print "Use cache:", id(_USER_SETTINGS_CACHE), _USER_SETTINGS_CACHE
         except KeyError:
             user_settings_instance = self.get(user=user)
             user_settings = user_settings_instance.get_settings()
