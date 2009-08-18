@@ -120,17 +120,20 @@ class DictField(models.TextField):
     """
     __metaclass__ = models.SubfieldBase
 
+    def _check_null(self, value):
+        if value is None and self.null == False:
+            raise forms.ValidationError(_("This field cannot be null."))
+        return value
+
     def to_python(self, value):
         """
         Converts the input value into the expected Python data type, raising
         django.core.exceptions.ValidationError if the data can't be converted.
         Returns the converted value. Subclasses should override this.
         """
+        value = self._check_null(value)
         if value is None:
-            if self.null:
-                return value
-            else:
-                raise forms.ValidationError(_("This field cannot be null."))
+            return None
 
         try:
             return DictData(value)
@@ -141,6 +144,10 @@ class DictField(models.TextField):
 
     def get_db_prep_save(self, value):
         "Returns field's value prepared for saving into a database."
+        value = self._check_null(value)
+        if value is None:
+            return None
+
         assert isinstance(value, (DictData, dict))
         return repr(value)
 #

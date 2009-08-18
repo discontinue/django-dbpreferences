@@ -152,6 +152,18 @@ class TestDictFieldForm(BaseTestCase):
         d = DictField(blank=True, null=True)
         self.failUnlessEqual(d.to_python(None), None)
 
+    def test_get_db_prep_save_cant_empty1(self):
+        d = DictField()
+        self.failUnlessRaises(forms.ValidationError, d.get_db_prep_save, None)
+
+    def test_get_db_prep_save_cant_empty2(self):
+        d = DictField(blank=True, null=False)
+        self.failUnlessRaises(forms.ValidationError, d.get_db_prep_save, None)
+
+    def test_get_db_prep_save_can_empty(self):
+        d = DictField(blank=True, null=True)
+        self.failUnlessEqual(d.get_db_prep_save(None), None)
+
     def test_formfield(self):
         d = DictField()
         f = d.formfield()
