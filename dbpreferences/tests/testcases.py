@@ -87,7 +87,7 @@ class TestDBPref(BaseTestCase):
         self.failUnless(Preference.objects.count() == 1)
 
         pk = Preference.objects.all()[0].pk
-        url = reverse("admin_dbpref_edit_form", kwargs={"pk":pk})
+        url = reverse("admin:dbpref_edit_form", kwargs={"pk":pk})
 
         self.login(usertype="staff")
 
@@ -191,7 +191,7 @@ class TestUserSettings(BaseTestCase):
 
         instance = UserSettings.objects.get(user=user) # increment: pre_init
         self.failUnlessEqual(self._init, 2)
-        self.failUnlessEqual(instance.get_settings(), {"Foo": "new value"})
+        self.failUnlessEqual(instance.settings, {"Foo": "new value"})
 
         # Now we should get a cached version, so pre_init should not be increment
         user_settings = SettingsDict(user)

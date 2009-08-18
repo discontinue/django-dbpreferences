@@ -73,7 +73,7 @@ class PreferenceAdmin(admin.ModelAdmin):
                 self.message_user(request, msg)
                 return HttpResponseRedirect(next_url)
         else:
-            preferences = obj.get_preferences()
+            preferences = obj.preferences
             form = form_class(preferences)
 
         # Append initial form values into all field help_text

@@ -29,5 +29,6 @@ urlpatterns = patterns('',
     url(r'^test_user_settings/(?P<test_name>.*)/(?P<key>.*)/(?P<value>.*)$',
         test_user_settings, name='test_user_settings'
     ),
-    url(r'^test_user_settings_cache/(?P<no>\d)/$', test_user_settings_cache, name='test_user_settings_cache'),
+    url(r'^test_user_settings_cache/(?P<no>\d)/$', test_user_settings_cache,
+        name='test_user_settings_cache'),
 )

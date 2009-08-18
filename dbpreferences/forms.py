@@ -45,7 +45,7 @@ class DBPreferencesBaseForm(forms.Form):
         except Preference.DoesNotExist:
             self.data = self.save_form_init()
         else:
-            self.data = self.instance.get_preferences()
+            self.data = self.instance.preferences
 
         self.is_bound = True
 

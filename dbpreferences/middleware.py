@@ -36,7 +36,7 @@ class SettingsDict(dict):
             self.modified = True # Create it at the end
         else:
             # Use existing data
-            settings_dict = self._model_instance.get_settings()
+            settings_dict = self._model_instance.settings
             dict.update(self, settings_dict)
 
         self._loaded = True

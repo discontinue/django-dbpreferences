@@ -29,6 +29,7 @@ from django.utils.translation import ugettext as _
 from django.contrib.auth.models import User, Group
 
 from dbpreferences.tools import forms_utils, easy_import, data_eval
+from dbpreferences.fields import DictField
 
 # The filename in witch the form should be stored:
 PREF_FORM_FILENAME = "preference_forms"
@@ -77,42 +78,6 @@ class PreferencesManager(models.Manager):
         return form_dict
 
 
-
-class DictFormField(forms.CharField):
-    """ form field for preferences dict """
-#    widget = DictFormWidget
-
-    def clean(self, value):
-        """
-        validate the form data
-        FIXME: How can we get the pref form class for validating???
-        """
-        value = super(DictFormField, self).clean(value)
-        try:
-            return deserialize(value)
-        except Exception, err:
-            raise forms.ValidationError("Can't deserialize: %s" % err)
-
-
-class DictField(models.TextField):
-    """
-    A dict field.
-    Stores a python dict into a text field.
-    """
-    __metaclass__ = models.SubfieldBase
-
-    def get_db_prep_save(self, value):
-        "Returns field's value prepared for saving into a database."
-        assert isinstance(value, dict)
-        return serialize(value)
-#
-    def formfield(self, **kwargs):
-        # Always use own form field and widget:
-        kwargs['form_class'] = DictFormField
-        return super(DictField, self).formfield(**kwargs)
-
-
-
 class Preference(models.Model):
     """
     Plugin preferences
@@ -135,24 +100,11 @@ class Preference(models.Model):
     lastupdateby = models.ForeignKey(User, editable=False, null=True, blank=True,
         related_name="%(class)s_lastupdateby", help_text="User as last edit the current page.",)
 
-    #__________________________________________________________________________
-
-    def get_preferences(self):
-        try:
-            return deserialize(self.preferences)
-        except Exception, err:
-            etype, evalue, etb = sys.exc_info()
-            evalue = etype("Error getting preferences '%s.%s.%s': %s" % (
-                self.site, self.app_label, self.form_name, evalue))
-            raise etype, evalue, etb
-
     def get_form_class(self):
         """ returns the form class for this preferences item """
         from_name = "%s.%s" % (self.app_label, PREF_FORM_FILENAME)
         form = easy_import.import3(from_name, self.form_name)
         return form
-
-    #__________________________________________________________________________
 
     def __unicode__(self):
         return u"Preferences for %s.%s.%s" % (self.site, self.app_label, self.form_name)
@@ -197,19 +149,6 @@ class UserSettings(models.Model):
     lastupdatetime = models.DateTimeField(auto_now=True, help_text="Time of the last change.",)
     lastupdateby = models.ForeignKey(User, editable=False,
         related_name="%(class)s_lastupdateby", help_text="User how has last edit this entry.",)
-
-    #__________________________________________________________________________
-
-    def get_settings(self):
-        """ get the deserialized settings """
-        try:
-            return deserialize(self.settings)
-        except Exception, err:
-            etype, evalue, etb = sys.exc_info()
-            evalue = etype("Error deserialize user settings for user %r: %s" % (self.user, evalue))
-            raise etype, evalue, etb
-
-    #__________________________________________________________________________
 
     def save(self, *args, **kwargs):
         """ save and update the cache """

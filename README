@@ -13,6 +13,14 @@ dict and the user can easy edit the values in the django admin panel.
  history
 =========
 
+- v0.3.0
+
+  - separate field stuff from models.py into fields.py, so its usable in other projects, too.
+  
+  - Use own dict class for serialize/deserialize
+  
+  - Update unittest for new django admin url prefix
+
 - v0.2.0
 
   - Add UserSettings, see: http://www.jensdiemer.de/_command/118/blog/detail/64/ (de)
