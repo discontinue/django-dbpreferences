@@ -25,10 +25,11 @@ import pprint
 from django import forms
 from django.db import models
 from django.contrib.sites.models import Site
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User, Group
 
 from dbpreferences.tools import forms_utils, easy_import, data_eval
+from dbpreferences.tools.data_eval import DataEvalError
 
 
 
@@ -43,19 +44,31 @@ class DictFormField(forms.CharField):
     Traceback (most recent call last):
         ...
     ValidationError: [u"Can't deserialize: Error 'Strings must be quoted' in line 1: 'error'"]
+    
+    >>> DictFormField().clean(None)
+    Traceback (most recent call last):
+        ...
+    ValidationError: [u'This field is required.']
+    
+    >>> DictFormField(required=False).clean(None)
+    u''
     """
-#    widget = DictFormWidget
-
     def clean(self, value):
         """
         validate the form data
         FIXME: How can we get the pref form class for validating???
         """
         value = super(DictFormField, self).clean(value)
+        if value == u'':
+            # empty value with a required=False
+            return u''
+
         try:
             return DictData(value)
-        except Exception, err:
-            raise forms.ValidationError("Can't deserialize: %s" % err)
+        except DataEvalError, err:
+            msg = "Can't deserialize: %s" % err
+#            msg = "Can't deserialize %r: %s" % (value, err)
+            raise forms.ValidationError(msg)
 
 
 class DictData(dict):
@@ -76,7 +89,7 @@ class DictData(dict):
             self.value = None
             super(DictData, self).__init__(value)
         else:
-            raise TypeError
+            raise TypeError("init data is not from type basestring or dict (It's type: %r)" % type(value))
 
     def __repr__(self):
         """ used in django admin form field and in DictField.get_db_prep_save() """
@@ -96,6 +109,9 @@ class DictField(models.TextField):
     >>> DictField().get_db_prep_save(d)
     "{'foo': 'bar'}"
     
+    >>> d = DictField().to_python(None)
+    ValidationError: [u'This field cannot be null.']
+    
     >>> f = DictField().formfield()
     >>> isinstance(f, DictFormField)
     True
@@ -110,14 +126,22 @@ class DictField(models.TextField):
         django.core.exceptions.ValidationError if the data can't be converted.
         Returns the converted value. Subclasses should override this.
         """
+        if value is None:
+            if self.null:
+                return value
+            else:
+                raise forms.ValidationError(_("This field cannot be null."))
+
         try:
             return DictData(value)
-        except Exception, err:
-            raise forms.ValidationError("Can't deserialize: %s" % err)
+        except DataEvalError, err:
+#            msg = "Can't deserialize: %s" % err
+            msg = "Can't deserialize %r: %s" % (value, err)
+            raise forms.ValidationError(msg)
 
     def get_db_prep_save(self, value):
         "Returns field's value prepared for saving into a database."
-        assert isinstance(value, DictData)
+        assert isinstance(value, (DictData, dict))
         return repr(value)
 #
     def formfield(self, **kwargs):

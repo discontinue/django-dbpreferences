@@ -11,18 +11,18 @@ if __name__ == "__main__":
     os.environ["DJANGO_SETTINGS_MODULE"] = "test_settings"
 
 from django import forms
-from django.conf import settings
-from django.test import TestCase
 from django.db.models import signals
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import AnonymousUser
 
 from dbpreferences import models
-from dbpreferences.models import Preference, UserSettings
+from dbpreferences.middleware import SettingsDict
 from dbpreferences.forms import DBPreferencesBaseForm
+from dbpreferences.models import Preference, UserSettings
 from dbpreferences.tests.unittest_base import BaseTestCase
 from dbpreferences.tests.preference_forms import UnittestForm
-from dbpreferences.middleware import SettingsDict
+from dbpreferences.fields import DictField, DictData, DictFormField
+
 
 class FormWithoutMeta(DBPreferencesBaseForm):
     pass
@@ -118,6 +118,61 @@ class TestDBPref(BaseTestCase):
         self.failUnlessEqual(pref_data,
             {'count': 5, 'foo_bool': False, 'font_size': 1.0, 'subject': u"new content"})
 
+
+# ----------------------------------------------------------------------------
+
+
+class TestDictFieldForm(BaseTestCase):
+    """ Tests for dbpreferences.fields objects. """
+    def test_data_eval1(self):
+        d = DictField().to_python('''{"foo":"bar"}''')
+        self.failUnlessEqual(d, {'foo': 'bar'})
+        self.failUnless(isinstance(d, DictData))
+
+    def test_repr1(self):
+        """ use get_db_prep_save() with DictData instance """
+        d = DictData({'foo': 'bar'})
+        s = DictField().get_db_prep_save(d)
+        self.failUnlessEqual(s, "{'foo': 'bar'}")
+
+    def test_repr2(self):
+        """ use get_db_prep_save() with normal dict object """
+        s = DictField().get_db_prep_save({'foo': 'bar'})
+        self.failUnlessEqual(s, "{'foo': 'bar'}")
+
+    def test_to_python_cant_empty1(self):
+        d = DictField()
+        self.failUnlessRaises(forms.ValidationError, d.to_python, None)
+
+    def test_to_python_cant_empty2(self):
+        d = DictField(blank=True, null=False)
+        self.failUnlessRaises(forms.ValidationError, d.to_python, None)
+
+    def test_to_python_can_empty(self):
+        d = DictField(blank=True, null=True)
+        self.failUnlessEqual(d.to_python(None), None)
+
+    def test_formfield(self):
+        d = DictField()
+        f = d.formfield()
+        self.failUnless(isinstance(f, DictFormField))
+
+    def test_formfield_clean(self):
+        f = DictFormField()
+        d = f.clean('''{"foo":"bar"}''')
+        self.failUnlessEqual(d, {'foo': 'bar'})
+
+    def test_formfield_clean_cant_empty(self):
+        f = DictFormField()
+        self.failUnlessRaises(forms.ValidationError, f.clean, None)
+
+    def test_formfield_clean_can_empty(self):
+        f = DictFormField(required=False)
+        s = f.clean(None)
+        self.failUnlessEqual(s, u'')
+
+
+# ----------------------------------------------------------------------------
 
 
 class UserSettingsTestCache(dict):
@@ -281,7 +336,12 @@ class TestUserSettings(BaseTestCase):
         self.failUnlessEqual(user_settings.get("Foo", "not the initial value"), "not the initial value")
 
 
+
+
+
+
 if __name__ == "__main__":
     # Run this unittest directly
     from django.core import management
     management.call_command('test', 'dbpreferences')
+#    management.call_command('test', 'dbpreferences.TestDictFieldForm')

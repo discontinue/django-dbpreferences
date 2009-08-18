@@ -13,6 +13,10 @@ dict and the user can easy edit the values in the django admin panel.
  history
 =========
 
+- v0.3.1
+
+  - Bugfix if DictField can be null / DictFormField(required=False)
+
 - v0.3.0
 
   - separate field stuff from models.py into fields.py, so its usable in other projects, too.
