@@ -34,6 +34,7 @@
 </fieldset>
 
 <div class="submit-row">
+    {% csrf_token %}
     <input type="submit" name="_save" class="default" value="Save"/>
     <!-- TODO:
     <p class="deletelink-box"><a class="deletelink" href="reset/">Reset to default values</a></p>
