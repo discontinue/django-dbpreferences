@@ -29,7 +29,6 @@ from dbpreferences.tools import forms_utils
 #------------------------------------------------------------------------------
 
 class PreferenceAdmin(admin.ModelAdmin):
-    actions = None # Disable actions
     list_display = ("site", "app_label", "form_name", "lastupdatetime", "lastupdateby", "edit_link")
     list_display_links = ("form_name",)
     list_filter = ("site", "app_label",)
