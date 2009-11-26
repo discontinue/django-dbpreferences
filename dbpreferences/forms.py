@@ -11,6 +11,14 @@ class DBPreferencesBaseForm(forms.Form):
         assert(isinstance(self.Meta.app_label, basestring))
         super(DBPreferencesBaseForm, self).__init__(*args, **kwargs)
 
+        for name, field in self.fields.items():
+            if field.__class__.__name__.startswith("Model"):
+                msg = (
+                    "Error with field %r from %r:"
+                    " Form fields which handle relationships are not supported, yet."
+                ) % (name, self.Meta.app_label)
+                raise AssertionError(msg)
+
     def save_form_init(self):
         current_site = Site.objects.get_current()
         app_label = self.Meta.app_label
@@ -22,7 +30,7 @@ class DBPreferencesBaseForm(forms.Form):
             pass
 
         # Save initial form values into database
-        form_dict = Preference.objects.save_form_init(
+        self.instance, form_dict = Preference.objects.save_form_init(
             form=self, site=current_site, app_label=app_label, form_name=form_name)
 
         return form_dict

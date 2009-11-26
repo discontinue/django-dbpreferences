@@ -20,7 +20,7 @@ from dbpreferences.middleware import SettingsDict
 from dbpreferences.forms import DBPreferencesBaseForm
 from dbpreferences.models import Preference, UserSettings
 from dbpreferences.tests.unittest_base import BaseTestCase
-from dbpreferences.tests.preference_forms import UnittestForm
+from dbpreferences.tests.preference_forms import UnittestForm, TestModelChoiceForm
 from dbpreferences.fields import DictField, DictData, DictFormField
 
 
@@ -117,6 +117,24 @@ class TestDBPref(BaseTestCase):
             "It's not dict, it's: %s - %r" % (type(pref_data), pref_data))
         self.failUnlessEqual(pref_data,
             {'count': 5, 'foo_bool': False, 'font_size': 1.0, 'subject': u"new content"})
+
+    def test_model_choice(self):
+        """
+        Test the form check: Form fields which handle relationships are not supported, yet.
+        """
+        self.failUnlessRaises(AssertionError, TestModelChoiceForm)
+
+        # A test can look like this, if ModelChoiceField are supported:
+#        form = TestModelChoiceForm()
+#        pref_data = form.get_preferences()
+#
+#        pref_obj = Preference.objects.all()[0]
+#        form["model_choice"] = pref_obj
+#        form.save()
+#
+#        form = TestModelChoiceForm()
+#
+#        self.failUnlessEqual(form["model_choice"], pref_obj)
 
 
 # ----------------------------------------------------------------------------
