@@ -110,6 +110,8 @@ class DictField(models.TextField):
     "{'foo': 'bar'}"
     
     >>> d = DictField().to_python(None)
+    Traceback (most recent call last):
+        ...
     ValidationError: [u'This field cannot be null.']
     
     >>> f = DictField().formfield()
