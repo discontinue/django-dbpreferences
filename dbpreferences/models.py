@@ -54,7 +54,7 @@ class PreferencesManager(models.Manager):
             preferences=form_dict,
         )
         new_entry.save()
-        return form_dict
+        return new_entry, form_dict
 
     def get_pref(self, form):
         """
