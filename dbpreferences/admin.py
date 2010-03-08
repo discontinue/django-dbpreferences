@@ -34,6 +34,21 @@ class PreferenceAdmin(admin.ModelAdmin):
     list_filter = ("site", "app_label",)
     search_fields = ("site", "app_label", "form_name",)
 
+    def has_add_permission(self, request):
+        """
+        Deny add permission for every user. Becuase manually adding a
+        preferences makes no sence, yet. (This hides the add button)
+        
+        Every user can only change existing preferences. Preferences entry are
+        added automatically by first accessing the preferences form.
+        
+        TODO: If the forms must be registered, we can create all preferences
+        into database on first startup.
+        see also:
+        http://code.google.com/p/django-dbpreferences/issues/detail?id=5
+        """
+        return False
+
     def edit_link(self, instance):
         """ For adding a edit link into django admin interface """
         context = {
