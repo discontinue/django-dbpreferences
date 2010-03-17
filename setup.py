@@ -11,7 +11,7 @@
     $Rev$
     $Author$
 
-    :copyleft: 2009 by the django-dbpreferences team, see AUTHORS for more details.
+    :copyleft: 2009-2010 by the django-dbpreferences team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -23,27 +23,27 @@ from setuptools import setup, find_packages
 from dbpreferences import VERSION_STRING
 
 
+PACKAGE_ROOT = os.path.dirname(os.path.abspath(__file__))
+
+
 def get_authors():
-    authors = []
-    f = file("AUTHORS", "r")
-    for line in f:
-        if line.startswith('*'):
-            authors.append(line[1:].strip())
+    f = file(os.path.join(PACKAGE_ROOT, "AUTHORS"), "r")
+    authors = [l.strip(" *\r\n") for l in f if l.strip().startswith("*")]
     f.close()
     return authors
 
+
 def get_long_description():
-    f = file("README", "r")
-    long_description = f.read()
+    f = file(os.path.join(PACKAGE_ROOT, "README"), "r")
+    long_description = f.read().strip()
     f.close()
-    long_description.strip()
     return long_description
 
 
 setup(
     name='django-dbpreferences',
     version=VERSION_STRING,
-    description='With django-dbpreferences you can store some app preferences into the database.',
+    description='With django-dbpreferences you can store app/user settings into the database.',
     long_description=get_long_description(),
     author=get_authors(),
     maintainer="Jens Diemer",
