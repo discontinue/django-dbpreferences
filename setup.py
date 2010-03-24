@@ -47,12 +47,13 @@ setup(
     long_description=get_long_description(),
     author=get_authors(),
     maintainer="Jens Diemer",
+    maintainer_email="django-dbpreferences@jensdiemer.de",
     url='http://code.google.com/p/django-dbpreferences/',
     packages=find_packages(),
     include_package_data=True, # include package data under svn source control
     zip_safe=False,
     classifiers=[
-        "Development Status :: 4 - Beta",
+#        "Development Status :: 4 - Beta",
         "Development Status :: 5 - Production/Stable",
         "Environment :: Web Environment",
         "Intended Audience :: Developers",

@@ -13,6 +13,10 @@ dict and the user can easy edit the values in the django admin panel.
  history
 =========
 
+- v0.3.2
+
+  - some bugfixes
+
 - v0.3.1
 
   - Bugfix if DictField can be null / DictFormField(required=False)
@@ -39,6 +43,9 @@ dict and the user can easy edit the values in the django admin panel.
 
 :homepage:
   http://code.google.com/p/django-dbpreferences/
+  
+:PyPi:
+  http://pypi.python.org/pypi/django-dbpreferences/
 
 :SVN:
  http://django-dbpreferences.googlecode.com/svn/trunk/
