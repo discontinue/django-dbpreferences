@@ -27,6 +27,7 @@ from django.db import models
 from django.contrib.sites.models import Site
 from django.utils.translation import ugettext as _
 from django.contrib.auth.models import User, Group
+from django.core.exceptions import ValidationError
 
 from dbpreferences.tools import forms_utils, easy_import, data_eval
 from dbpreferences.fields import DictField
@@ -99,6 +100,27 @@ class Preference(models.Model):
     lastupdatetime = models.DateTimeField(auto_now=True, help_text="Time of the last change.",)
     lastupdateby = models.ForeignKey(User, editable=False, null=True, blank=True,
         related_name="%(class)s_lastupdateby", help_text="User as last edit the current page.",)
+
+    def clean_fields(self, exclude):
+        """
+        validate preferences dict with the form
+        """
+        message_dict = {}
+
+        if "preferences" not in exclude:
+            form = self.get_form_class()
+            f = form(self.preferences)
+            f.full_clean()
+            if f.is_valid():
+                self.preferences = f.cleaned_data
+            else:
+                errors = []
+                for k, v in f._errors.iteritems():
+                    errors.append("'%s': '%s'" % (k, ", ".join(v)))
+                message_dict["preferences"] = errors
+
+        if message_dict:
+            raise ValidationError(message_dict)
 
     def get_form_class(self):
         """ returns the form class for this preferences item """

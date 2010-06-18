@@ -2,6 +2,7 @@
 
 from django import forms
 from django.contrib.sites.models import Site
+from django.core.exceptions import ValidationError
 
 from dbpreferences.models import Preference
 from dbpreferences.tools import forms_utils, easy_import
@@ -19,10 +20,14 @@ class DBPreferencesBaseForm(forms.Form):
                 ) % (name, self.Meta.app_label)
                 raise AssertionError(msg)
 
-    def save_form_init(self):
-        current_site = Site.objects.get_current()
+    def _get_app_label_form_name(self):
         app_label = self.Meta.app_label
         form_name = self.__class__.__name__
+        return app_label, form_name
+
+    def save_form_init(self):
+        current_site = Site.objects.get_current()
+        app_label, form_name = self._get_app_label_form_name()
 
         try:
             Preference.objects.get(site=current_site, app_label=app_label, form_name=form_name).delete()
@@ -47,7 +52,12 @@ class DBPreferencesBaseForm(forms.Form):
         self.instance.save()
 
     def get_preferences(self):
-        """ return a dict with the current preferences """
+        """
+        return current preferences
+            1. get the dbpreferenced data from database
+            2. validate them
+            3. return cleaned_data dict
+        """
         try:
             self.instance = self.get_db_instance()
         except Preference.DoesNotExist:
@@ -55,9 +65,23 @@ class DBPreferencesBaseForm(forms.Form):
         else:
             self.data = self.instance.preferences
 
+        # Cleans all of self.data and populates self._errors and self.cleaned_data
         self.is_bound = True
+        self.full_clean()
 
-        return self.data
+        if not self.is_valid():
+            errors = []
+            for k, v in self._errors.iteritems():
+                errors.append("'%s': '%s'" % (k, ", ".join(v)))
+            error_msg = ", ".join(errors)
+            app_label, form_name = self._get_app_label_form_name()
+            raise ValidationError(
+                "DBpreferences data for '%s.%s' not valid: %s" % (
+                    app_label, form_name, error_msg
+                )
+            )
+
+        return self.cleaned_data
 
     def get_db_instance(self):
         """ returns the database entry instance """
