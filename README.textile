@@ -9,6 +9,8 @@ dict and the user can easy edit the values in the django admin panel.
 
 h2. history
 
+* v0.3.4
+** Bugfix if help_text contains non ascii characters and html code
 * v0.3.3
 ** validate preferences with model validation
 ** clean preferences in get_preferences()

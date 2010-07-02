@@ -3,13 +3,7 @@
     some utils around newforms
     ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    Last commit info:
-    ~~~~~~~~~~~~~~~~~
-    $LastChangedDate: 2009-04-17 10:07:35 +0100 (Fr, 17 Apr 2009) $
-    $Rev: 1900 $
-    $Author: JensDiemer $
-
-    :copyleft: 2008 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2008-2010 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -17,7 +11,8 @@ import unittest
 
 from django import forms
 from django.forms import ValidationError
-from django.utils.encoding import smart_unicode
+from django.utils.encoding import smart_unicode, force_unicode
+from django.utils.html import escape
 
 
 def setup_help_text(form):
@@ -29,8 +24,9 @@ def setup_help_text(form):
         if u"(default: '" in help_text:
             # The default information was inserted in the past
             return
-        field.help_text = "%s (default: '%s')" % (
-            field.help_text, field.initial
+        initial_text = escape(force_unicode(field.initial))
+        field.help_text = u"%s (default: '%s')" % (
+            field.help_text, initial_text
         )
 
 def get_init_dict(form):
