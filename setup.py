@@ -5,12 +5,6 @@
     distutils setup
     ~~~~~~~~~~~~~~~
 
-    Last commit info:
-    ~~~~~~~~~~~~~~~~~
-    $LastChangedDate$
-    $Rev$
-    $Author$
-
     :copyleft: 2009-2010 by the django-dbpreferences team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
@@ -27,16 +21,22 @@ PACKAGE_ROOT = os.path.dirname(os.path.abspath(__file__))
 
 
 def get_authors():
-    f = file(os.path.join(PACKAGE_ROOT, "AUTHORS"), "r")
-    authors = [l.strip(" *\r\n") for l in f if l.strip().startswith("*")]
-    f.close()
+    try:
+        f = file(os.path.join(PACKAGE_ROOT, "AUTHORS"), "r")
+        authors = [l.strip(" *\r\n") for l in f if l.strip().startswith("*")]
+        f.close()
+    except Exception, err:
+        authors = "[Error: %s]" err
     return authors
 
 
 def get_long_description():
-    f = file(os.path.join(PACKAGE_ROOT, "README.textile"), "r")
-    long_description = f.read().strip()
-    f.close()
+    try:
+        f = file(os.path.join(PACKAGE_ROOT, "README.textile"), "r")
+        long_description = f.read().strip()
+        f.close()
+    except Exception, err:
+        long_description = "[Error: %s]" err
     return long_description
 
 
