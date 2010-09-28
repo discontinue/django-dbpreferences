@@ -26,7 +26,7 @@ def get_authors():
         authors = [l.strip(" *\r\n") for l in f if l.strip().startswith("*")]
         f.close()
     except Exception, err:
-        authors = "[Error: %s]" err
+        authors = "[Error: %s]" % err
     return authors
 
 
@@ -36,7 +36,7 @@ def get_long_description():
         long_description = f.read().strip()
         f.close()
     except Exception, err:
-        long_description = "[Error: %s]" err
+        long_description = "[Error: %s]" % err
     return long_description
 
 
