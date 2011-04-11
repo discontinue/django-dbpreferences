@@ -7,8 +7,12 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 DEBUG = True
 
-DATABASE_ENGINE = "sqlite3"
-DATABASE_NAME = ":memory:"
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': ":memory:"
+    }
+}
 
 INSTALLED_APPS = (
     'django.contrib.auth',
@@ -23,6 +27,7 @@ INSTALLED_APPS = (
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
 
     'dbpreferences.middleware.DBPreferencesMiddleware',
 )

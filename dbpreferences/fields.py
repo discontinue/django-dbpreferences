@@ -4,13 +4,7 @@
     DBPreferences - fields
     ~~~~~~~~~~~~~~~~~~~~~~
 
-    Last commit info:
-    ~~~~~~~~~~~~~~~~~
-    $LastChangedDate: $
-    $Rev: $
-    $Author: $
-
-    :copyleft: 2009 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2011 by the dbpreferences team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -144,7 +138,7 @@ class DictField(models.TextField):
             msg = "Can't deserialize %r: %s" % (value, err)
             raise forms.ValidationError(msg)
 
-    def get_db_prep_save(self, value):
+    def get_db_prep_save(self, value, **kwargs):
         "Returns field's value prepared for saving into a database."
         value = self._check_null(value)
         if value is None:
