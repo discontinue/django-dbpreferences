@@ -9,6 +9,8 @@ dict and the user can easy edit the values in the django admin panel.
 
 h2. history
 
+* v0.4.0
+** NEW: Use initial data, if not exist in saved preferences. So it's easier to add new preferences values. 
 * v0.3.8
 ** Bugfix in error message for not existing keys
 * v0.3.7

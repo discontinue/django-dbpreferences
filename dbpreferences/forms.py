@@ -10,6 +10,8 @@
 """
 
 
+import warnings
+
 from django import forms
 from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
@@ -61,6 +63,25 @@ class DBPreferencesBaseForm(forms.Form):
     def save(self):
         self.instance.preferences = self.data
         self.instance.save()
+
+    def full_clean(self):
+        """
+        Fill missing values with initial data and create a warning for that.
+        XXX: Is this the best place to do this?
+        """
+        for name, field in self.fields.items():
+            if name not in self.data and field.initial:
+                # Field doesn't exist in current preferences. Add it if initial value given
+                initial = field.initial
+                self.data[name] = initial
+                app_label, form_name = self._get_app_label_form_name()
+                msg = (
+                    "Use initial value %r for %r cause"
+                    " it didn't exist in %s.%s preferences, yet."
+                ) % (initial, name, app_label, form_name)
+                warnings.warn(msg)
+
+        super(DBPreferencesBaseForm, self).full_clean()
 
     def get_preferences(self):
         """
