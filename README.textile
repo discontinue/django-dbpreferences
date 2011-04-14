@@ -9,6 +9,8 @@ dict and the user can easy edit the values in the django admin panel.
 
 h2. history
 
+* v0.3.8
+** Bugfix in error message for not existing keys
 * v0.3.7
 ** Change version scheme and add last git commit date to version string
 * v0.3.6

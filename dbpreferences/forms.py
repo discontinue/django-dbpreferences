@@ -83,9 +83,14 @@ class DBPreferencesBaseForm(forms.Form):
         if not self.is_valid():
             errors = []
             for item, msg in self._errors.iteritems():
+                if item in self.data:
+                    value_info = "(current value is: %r)" % self.data[item]
+                else:
+                    value_info = "(key not set in dict!)"
+
                 errors.append(
-                    "'%s' (current value is: %r): '%s'" % (
-                        item, self.data[item], ", ".join(msg)
+                    "'%s' %s: '%s'" % (
+                        item, value_info, ", ".join(msg)
                     )
                 )
 
