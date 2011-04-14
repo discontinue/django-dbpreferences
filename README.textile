@@ -9,6 +9,8 @@ dict and the user can easy edit the values in the django admin panel.
 
 h2. history
 
+* v0.3.6
+** Display current value on ValidationError
 * v0.3.5
 ** Updates for django v1.2 API changes
 * v0.3.4

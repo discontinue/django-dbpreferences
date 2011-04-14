@@ -1,11 +1,22 @@
 # coding: utf-8
 
+
+"""
+    dbpreferences base form
+    ~~~~~~~~~~~~~~~~~~~~~~~
+
+    :copyleft: 2009-2011 by the django-dbpreferences team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details.
+"""
+
+
 from django import forms
 from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
 
 from dbpreferences.models import Preference
 from dbpreferences.tools import forms_utils, easy_import
+
 
 class DBPreferencesBaseForm(forms.Form):
     def __init__(self, *args, **kwargs):
@@ -71,8 +82,13 @@ class DBPreferencesBaseForm(forms.Form):
 
         if not self.is_valid():
             errors = []
-            for k, v in self._errors.iteritems():
-                errors.append("'%s': '%s'" % (k, ", ".join(v)))
+            for item, msg in self._errors.iteritems():
+                errors.append(
+                    "'%s' (current value is: %r): '%s'" % (
+                        item, self.data[item], ", ".join(msg)
+                    )
+                )
+
             error_msg = ", ".join(errors)
             app_label, form_name = self._get_app_label_form_name()
             raise ValidationError(
