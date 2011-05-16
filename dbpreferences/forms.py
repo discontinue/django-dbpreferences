@@ -15,6 +15,7 @@ import warnings
 from django import forms
 from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
+from django.forms.fields import BooleanField
 
 from dbpreferences.models import Preference
 from dbpreferences.tools import forms_utils, easy_import
@@ -71,6 +72,11 @@ class DBPreferencesBaseForm(forms.Form):
         """
         for name, field in self.fields.items():
             if name not in self.data and field.initial:
+
+                if isinstance(field, BooleanField):
+                    # BooleanFields can be missed (unchecked) ;)
+                    continue
+
                 # Field doesn't exist in current preferences. Add it if initial value given
                 initial = field.initial
                 self.data[name] = initial
