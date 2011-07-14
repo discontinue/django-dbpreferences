@@ -9,6 +9,8 @@ dict and the user can easy edit the values in the django admin panel.
 
 h2. history
 
+* v0.4.2
+** Bugfix: Add templates to pypi package
 * v0.4.1
 ** Bugfix with BooleanField
 * v0.4.0
