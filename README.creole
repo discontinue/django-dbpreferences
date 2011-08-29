@@ -72,9 +72,11 @@ To do a pip upgrade in a virtual environment, run this:
 
 To made a fast repository update, you can run this simple shell script:
 
-{{{~$ cd /path/to/django-dbpreferences
+{{{
+~$ cd /path/to/django-dbpreferences
 /path/to/django-dbpreferences$ ./update.sh
-}}} the update script runs “git pull origin master” or “svn update”.
+}}}
+the update script runs “git pull origin master” or “svn update”.
 
 
 == donation ==
