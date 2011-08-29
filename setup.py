@@ -1,11 +1,11 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# coding: utf-8
 
 """
     distutils setup
     ~~~~~~~~~~~~~~~
 
-    :copyleft: 2009-2010 by the django-dbpreferences team, see AUTHORS for more details.
+    :copyleft: 2009-2011 by the django-dbpreferences team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -20,6 +20,20 @@ from dbpreferences import VERSION_STRING
 PACKAGE_ROOT = os.path.dirname(os.path.abspath(__file__))
 
 
+# convert creole to ReSt on-the-fly, see also:
+# https://code.google.com/p/python-creole/wiki/UseInSetup
+try:
+    from creole.setup_utils import GetLongDescription
+except ImportError:
+    if "register" in sys.argv or "sdist" in sys.argv or "--long-description" in sys.argv:
+        etype, evalue, etb = sys.exc_info()
+        evalue = etype("%s - Please install python-creole >= v0.8 -  e.g.: pip install python-creole" % evalue)
+        raise etype, evalue, etb
+    long_description = None
+else:
+    long_description = GetLongDescription(PACKAGE_ROOT)
+
+
 def get_authors():
     try:
         f = file(os.path.join(PACKAGE_ROOT, "AUTHORS"), "r")
@@ -30,21 +44,11 @@ def get_authors():
     return authors
 
 
-def get_long_description():
-    try:
-        f = file(os.path.join(PACKAGE_ROOT, "README.textile"), "r")
-        long_description = f.read().strip()
-        f.close()
-    except Exception, err:
-        long_description = "[Error: %s]" % err
-    return long_description
-
-
 setup(
     name='django-dbpreferences',
     version=VERSION_STRING,
     description='With django-dbpreferences you can store app/user settings into the database.',
-    long_description=get_long_description(),
+    long_description=long_description,
     author=get_authors(),
     maintainer="Jens Diemer",
     maintainer_email="django-dbpreferences@jensdiemer.de",
