@@ -152,7 +152,7 @@ class UserSettingsManager(models.Manager):
             (user_settings_instance, user_settings) = _USER_SETTINGS_CACHE[user.pk]
         except KeyError:
             user_settings_instance = self.get(user=user)
-            user_settings = user_settings_instance.get_settings()
+            user_settings = user_settings_instance.settings
             _USER_SETTINGS_CACHE[user.pk] = (user_settings_instance, user_settings)
 
         return user_settings_instance, user_settings

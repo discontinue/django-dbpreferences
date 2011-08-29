@@ -16,6 +16,8 @@ More Information and examples can be found here:
 
 == history
 
+* v0.4.3
+** Bugfix: [[https://github.com/jedie/django-dbpreferences/issues/1|For 'UserSettings' object has no attribute 'get_settings']] 
 * v0.4.2
 ** Bugfix: Add templates to pypi package
 * v0.4.1

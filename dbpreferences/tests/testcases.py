@@ -365,6 +365,18 @@ class TestUserSettings(BaseTestCase):
         user_settings = SettingsDict(user)
         self.failUnlessEqual(user_settings.get("Foo", "not the initial value"), "not the initial value")
 
+    def test_issues1(self):
+        """ https://github.com/jedie/django-dbpreferences/issues/1 """
+        user = self.get_user(usertype="staff")
+        user_settings = SettingsDict(user)
+        user_settings["Foo"] = "Bar"
+        user_settings.save()
+
+        models._USER_SETTINGS_CACHE = UserSettingsTestCache()
+
+        user_settings_instance, user_settings = UserSettings.objects.get_settings(user)
+        self.failUnless(isinstance(user_settings_instance, UserSettings))
+        self.failUnlessEqual(user_settings, {"Foo":"Bar"})
 
 
 
@@ -374,4 +386,4 @@ if __name__ == "__main__":
     # Run this unittest directly
     from django.core import management
     management.call_command('test', 'dbpreferences')
-#    management.call_command('test', 'dbpreferences.TestDictFieldForm')
+#    management.call_command('test', 'dbpreferences.TestUserSettings.test_issues1')
