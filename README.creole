@@ -91,3 +91,6 @@ If you like it, send some [[http://www.bitcoin.org/|Bitcoins]] to [[https://bloc
 | homepage    | http://code.google.com/p/django-dbpreferences/
 | Sourcecode  | http://github.com/jedie/django-dbpreferences
 | PyPi        | http://pypi.python.org/pypi/django-dbpreferences/
+| IRC         | [[http://www.pylucid.org/permalink/304/irc-channel|#pylucid on freenode.net]]
+
+
