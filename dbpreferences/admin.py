@@ -29,8 +29,8 @@ from dbpreferences.tools import forms_utils
 #------------------------------------------------------------------------------
 
 class PreferenceAdmin(admin.ModelAdmin):
-    list_display = ("site", "app_label", "form_name", "lastupdatetime", "lastupdateby", "edit_link")
-    list_display_links = ("form_name",)
+    list_display = ("id", "site", "app_label", "edit_link", "raw_edit", "lastupdatetime", "lastupdateby")
+    list_display_links = ("id", "raw_edit",)
     list_filter = ("site", "app_label",)
     search_fields = ("site", "app_label", "form_name",)
 
@@ -49,12 +49,17 @@ class PreferenceAdmin(admin.ModelAdmin):
         """
         return False
 
+    def raw_edit(self, instance):
+        return u"raw edit"
+
     def edit_link(self, instance):
         """ For adding a edit link into django admin interface """
         context = {
             "instance": instance,
         }
         return render_to_string('dbpreferences/model_admin_edit_link.html', context)
+    edit_link.admin_order_field = "form_name"
+    edit_link.short_description = _("Edit this preference entry")
     edit_link.allow_tags = True
 
     def edit_form(self, request, pk):
