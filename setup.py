@@ -12,7 +12,7 @@
 import os
 import sys
 
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages, Command
 
 from dbpreferences import VERSION_STRING
 
@@ -44,6 +44,19 @@ def get_authors():
     return authors
 
 
+class RunTests(Command):
+    description = "Run the django test suite"
+    user_options = []
+
+    def initialize_options(self): pass
+    def finalize_options(self): pass
+
+    def run(self):
+        os.environ["DJANGO_SETTINGS_MODULE"] = "dbpreferences.tests.test_settings"
+        import dbpreferences.tests.run_tests
+        dbpreferences.tests.run_tests.runtests()
+
+
 setup(
     name='django-dbpreferences',
     version=VERSION_STRING,
@@ -72,5 +85,6 @@ setup(
         "Topic :: Internet :: WWW/HTTP :: Site Management",
         "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
         "Operating System :: OS Independent",
-    ]
+    ],
+    cmdclass={"test": RunTests},
 )

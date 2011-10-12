@@ -16,6 +16,10 @@ More Information and examples can be found here:
 
 == history
 
+* v0.4.4
+** Add south support (if installed)
+** tests can be run with {{{./setup.py test}}}
+** add german translations
 * v0.4.3
 ** Bugfix: [[https://github.com/jedie/django-dbpreferences/issues/1|For 'UserSettings' object has no attribute 'get_settings']] 
 * v0.4.2

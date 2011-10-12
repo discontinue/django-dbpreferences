@@ -153,6 +153,13 @@ class DictField(models.TextField):
         return super(DictField, self).formfield(**kwargs)
 
 
+try:
+    from south.modelsinspector import add_introspection_rules
+except ImportError:
+    pass
+else:
+    add_introspection_rules([], ["^dbpreferences\.fields\.DictField"])
+
 
 if __name__ == "__main__":
     import doctest
