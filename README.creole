@@ -13,6 +13,8 @@ More Information and examples can be found here:
 
 * https://code.google.com/p/django-dbpreferences/w/list
 
+Tested with django 1.3 and django 1.4
+
 
 == history
 
