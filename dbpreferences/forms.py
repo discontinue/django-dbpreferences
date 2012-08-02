@@ -15,16 +15,33 @@ import warnings
 from django import forms
 from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.forms.fields import BooleanField
 
 from dbpreferences.models import Preference
 from dbpreferences.tools import forms_utils, easy_import
 
 
+try:
+    # https://github.com/jedie/django-tools#local-sync-cache
+    from django_tools.local_sync_cache.local_sync_cache import LocalSyncCache
+except ImportError:
+    _PREFERENCES_CACHE = {}
+else:
+    _PREFERENCES_CACHE = LocalSyncCache(id="DBPreferences_form")
+
+
 class DBPreferencesBaseForm(forms.Form):
+    preference_cache = {}
     def __init__(self, *args, **kwargs):
         assert(isinstance(self.Meta.app_label, basestring))
         super(DBPreferencesBaseForm, self).__init__(*args, **kwargs)
+
+        self.current_site = Site.objects.get_current()
+        self.app_label = self.Meta.app_label
+        self.form_name = self.__class__.__name__
+        self.cache_key = "%s.%s.%s" % (self.current_site.id, self.app_label, self.app_label)
 
         for name, field in self.fields.items():
             if field.__class__.__name__.startswith("Model"):
@@ -34,23 +51,19 @@ class DBPreferencesBaseForm(forms.Form):
                 ) % (name, self.Meta.app_label)
                 raise AssertionError(msg)
 
-    def _get_app_label_form_name(self):
-        app_label = self.Meta.app_label
-        form_name = self.__class__.__name__
-        return app_label, form_name
-
     def save_form_init(self):
-        current_site = Site.objects.get_current()
-        app_label, form_name = self._get_app_label_form_name()
-
         try:
-            Preference.objects.get(site=current_site, app_label=app_label, form_name=form_name).delete()
+            Preference.objects.get(
+                site=self.current_site, app_label=self.app_label, form_name=self.form_name
+            ).delete()
         except Preference.DoesNotExist:
             pass
 
         # Save initial form values into database
         self.instance, form_dict = Preference.objects.save_form_init(
-            form=self, site=current_site, app_label=app_label, form_name=form_name)
+            form=self,
+            site=self.current_site, app_label=self.app_label, form_name=self.form_name
+        )
 
         return form_dict
 
@@ -80,11 +93,10 @@ class DBPreferencesBaseForm(forms.Form):
                 # Field doesn't exist in current preferences. Add it if initial value given
                 initial = field.initial
                 self.data[name] = initial
-                app_label, form_name = self._get_app_label_form_name()
                 msg = (
                     "Use initial value %r for %r cause"
                     " it didn't exist in %s.%s preferences, yet."
-                ) % (initial, name, app_label, form_name)
+                ) % (initial, name, self.app_label, self.form_name)
                 warnings.warn(msg)
 
         super(DBPreferencesBaseForm, self).full_clean()
@@ -122,10 +134,9 @@ class DBPreferencesBaseForm(forms.Form):
                 )
 
             error_msg = ", ".join(errors)
-            app_label, form_name = self._get_app_label_form_name()
             raise ValidationError(
                 "DBpreferences data for '%s.%s' not valid: %s" % (
-                    app_label, form_name, error_msg
+                    self.app_label, self.form_name, error_msg
                 )
             )
 
@@ -133,9 +144,17 @@ class DBPreferencesBaseForm(forms.Form):
 
     def get_db_instance(self):
         """ returns the database entry instance """
-        current_site = Site.objects.get_current()
-        app_label = self.Meta.app_label
-        form_name = self.__class__.__name__
+        try:
+            self.instance = _PREFERENCES_CACHE[self.cache_key]
+        except KeyError:
+            self.instance = Preference.objects.get(
+                site=self.current_site, app_label=self.app_label, form_name=self.form_name
+            )
+            _PREFERENCES_CACHE[self.cache_key] = self.instance
 
-        self.instance = Preference.objects.get(site=current_site, app_label=app_label, form_name=form_name)
         return self.instance
+
+
+@receiver(post_save, sender=Preference)
+def clear_cache(sender, **kwargs):
+    _PREFERENCES_CACHE.clear()
