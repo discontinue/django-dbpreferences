@@ -62,6 +62,10 @@ class PreferencesManager(models.Manager):
         returns the preferences for the given form
         stores the preferences into the database, if not exist.
         """
+        import warnings
+        warnings.warn(
+            "Preference.objects.get_pref() is deprecated!", DeprecationWarning
+        )
         assert isinstance(form, forms.Form), ("You must give a form instance and not only the class!")
 
         current_site = Site.objects.get_current()
@@ -140,7 +144,15 @@ class Preference(models.Model):
 
 #-----------------------------------------------------------------------------
 
-_USER_SETTINGS_CACHE = {}
+
+try:
+    # https://github.com/jedie/django-tools#local-sync-cache
+    from django_tools.local_sync_cache.local_sync_cache import LocalSyncCache
+except ImportError:
+    _USER_SETTINGS_CACHE = {}
+else:
+    _USER_SETTINGS_CACHE = LocalSyncCache(id="DBPreferences_user_settings")
+
 
 class UserSettingsManager(models.Manager):
     def get_settings(self, user):
@@ -174,7 +186,7 @@ class UserSettings(models.Model):
 
     def save(self, *args, **kwargs):
         """ save and update the cache """
-        _USER_SETTINGS_CACHE[self.user.pk] = (self, self.settings) # Update cache
+        _USER_SETTINGS_CACHE.clear()
         return super(UserSettings, self).save(*args, **kwargs)
 
     def __unicode__(self):
