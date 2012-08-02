@@ -41,22 +41,22 @@ def test_user_settings_cache(request, no):
     elif no == "1":
         # second call
         should_save_count = 1
-        should_init_count = 1
+        should_init_count = 2
     elif no in ("2", "3", "4"):
         # Use cached Version
         should_save_count = 1
-        should_init_count = 1
+        should_init_count = 2
     elif no == "5":
         # Change the value
         request.user_settings["test"] = "new value"
         should_value = "new value"
         should_save_count = 1
-        should_init_count = 1
+        should_init_count = 2
     else:
         # After 5
         should_value = "new value"
         should_save_count = 2
-        should_init_count = 1
+        should_init_count = 3
 
     global save_count
     assert save_count == should_save_count, "Wrong save count %r (should %r) in no %r" % (

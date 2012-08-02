@@ -1,27 +1,28 @@
 # coding: utf-8
 """
     Unittest for DBpreferences
-    
+
     INFO: dbpreferences should be exist in python path!
 """
+
 
 if __name__ == "__main__":
     # run unittest directly
     import os
     os.environ["DJANGO_SETTINGS_MODULE"] = "test_settings"
 
-from django import forms
-from django.db.models import signals
-from django.core.urlresolvers import reverse
 from django.contrib.auth.models import AnonymousUser
+from django.core.exceptions import ValidationError
+from django.core.urlresolvers import reverse
+from django.db.models import signals
 
-from dbpreferences import models
-from dbpreferences.middleware import SettingsDict
-from dbpreferences.forms import DBPreferencesBaseForm
-from dbpreferences.models import Preference, UserSettings
-from dbpreferences.tests.unittest_base import BaseTestCase
-from dbpreferences.tests.preference_forms import UnittestForm, TestModelChoiceForm
+from dbpreferences import models, forms
 from dbpreferences.fields import DictField, DictData, DictFormField
+from dbpreferences.forms import DBPreferencesBaseForm
+from dbpreferences.middleware import SettingsDict
+from dbpreferences.models import Preference, UserSettings
+from dbpreferences.tests.preference_forms import UnittestForm, TestModelChoiceForm
+from dbpreferences.tests.unittest_base import BaseTestCase
 
 
 class FormWithoutMeta(DBPreferencesBaseForm):
@@ -32,12 +33,24 @@ class FormMetaWithoutAppLabel(DBPreferencesBaseForm):
         pass
 
 
+class GetItemCountDict(dict):
+    def __init__(self):
+        self.cache_hit = 0
+        super(GetItemCountDict, self).__init__()
 
+    def __setitem__(self, key, value):
+        dict.__setitem__(self, key, value)
+
+    def __getitem__(self, key):
+        self.cache_hit += 1
+        return dict.__getitem__(self, key)
 
 
 class TestDBPref(BaseTestCase):
     def setUp(self):
         Preference.objects.all().delete()
+
+        forms._PREFERENCES_CACHE = GetItemCountDict()
 
     def test_form_without_meta(self):
         self.failUnlessRaises(AttributeError, FormWithoutMeta)
@@ -48,18 +61,18 @@ class TestDBPref(BaseTestCase):
     def test_form_api(self):
         form = UnittestForm()
         # Frist time, the data would be inserted into the database
-        self.failUnless(Preference.objects.count() == 0)
+        self.assertEqual(Preference.objects.count(), 0)
         pref_data = form.get_preferences()
-        self.failUnless(Preference.objects.count() == 1)
+        self.assertEqual(Preference.objects.count(), 1)
         self.failUnless(isinstance(pref_data, dict),
             "It's not dict, it's: %s - %r" % (type(pref_data), pref_data))
         self.failUnlessEqual(pref_data,
             {'count': 10, 'foo_bool': True, 'font_size': 0.7, 'subject': 'foobar'})
 
         form = UnittestForm()
-        self.failUnless(Preference.objects.count() == 1)
+        self.assertEqual(Preference.objects.count(), 1)
         pref_data = form.get_preferences()
-        self.failUnless(Preference.objects.count() == 1)
+        self.assertEqual(Preference.objects.count(), 1)
         self.failUnless(isinstance(pref_data, dict),
             "It's not dict, it's: %s - %r" % (type(pref_data), pref_data))
         self.failUnlessEqual(pref_data,
@@ -84,7 +97,7 @@ class TestDBPref(BaseTestCase):
         # Create one db entry
         form = UnittestForm()
         pref_data = form.get_preferences()
-        self.failUnless(Preference.objects.count() == 1)
+        self.assertEqual(Preference.objects.count(), 1)
 
         pk = Preference.objects.all()[0].pk
         url = reverse("admin:dbpref_edit_form", kwargs={"pk":pk})
@@ -110,9 +123,9 @@ class TestDBPref(BaseTestCase):
         )
 
         form = UnittestForm()
-        self.failUnless(Preference.objects.count() == 1)
+        self.assertEqual(Preference.objects.count(), 1)
         pref_data = form.get_preferences()
-        self.failUnless(Preference.objects.count() == 1)
+        self.assertEqual(Preference.objects.count(), 1)
         self.failUnless(isinstance(pref_data, dict),
             "It's not dict, it's: %s - %r" % (type(pref_data), pref_data))
         self.failUnlessEqual(pref_data,
@@ -160,11 +173,11 @@ class TestDictFieldForm(BaseTestCase):
 
     def test_to_python_cant_empty1(self):
         d = DictField()
-        self.failUnlessRaises(forms.ValidationError, d.to_python, None)
+        self.failUnlessRaises(ValidationError, d.to_python, None)
 
     def test_to_python_cant_empty2(self):
         d = DictField(blank=True, null=False)
-        self.failUnlessRaises(forms.ValidationError, d.to_python, None)
+        self.failUnlessRaises(ValidationError, d.to_python, None)
 
     def test_to_python_can_empty(self):
         d = DictField(blank=True, null=True)
@@ -172,11 +185,11 @@ class TestDictFieldForm(BaseTestCase):
 
     def test_get_db_prep_save_cant_empty1(self):
         d = DictField()
-        self.failUnlessRaises(forms.ValidationError, d.get_db_prep_save, None)
+        self.failUnlessRaises(ValidationError, d.get_db_prep_save, None)
 
     def test_get_db_prep_save_cant_empty2(self):
         d = DictField(blank=True, null=False)
-        self.failUnlessRaises(forms.ValidationError, d.get_db_prep_save, None)
+        self.failUnlessRaises(ValidationError, d.get_db_prep_save, None)
 
     def test_get_db_prep_save_can_empty(self):
         d = DictField(blank=True, null=True)
@@ -194,7 +207,7 @@ class TestDictFieldForm(BaseTestCase):
 
     def test_formfield_clean_cant_empty(self):
         f = DictFormField()
-        self.failUnlessRaises(forms.ValidationError, f.clean, None)
+        self.failUnlessRaises(ValidationError, f.clean, None)
 
     def test_formfield_clean_can_empty(self):
         f = DictFormField(required=False)
@@ -205,23 +218,6 @@ class TestDictFieldForm(BaseTestCase):
 # ----------------------------------------------------------------------------
 
 
-class UserSettingsTestCache(dict):
-    def __init__(self):
-        self.cache_hit = 0
-        super(UserSettingsTestCache, self).__init__()
-
-    def __setitem__(self, key, value):
-        assert isinstance(value, tuple) == True
-        assert isinstance(key, int)
-        assert isinstance(value[0], UserSettings)
-        assert isinstance(value[1], dict)
-        dict.__setitem__(self, key, value)
-
-    def __getitem__(self, key):
-        self.cache_hit += 1
-        return dict.__getitem__(self, key)
-
-
 class TestUserSettings(BaseTestCase):
     def setUp(self):
         self._saved = 0
@@ -229,20 +225,13 @@ class TestUserSettings(BaseTestCase):
         signals.post_save.connect(self._post_save_handler, sender=UserSettings)
         signals.pre_init.connect(self._post_init_handler, sender=UserSettings)
 
-        models._USER_SETTINGS_CACHE = UserSettingsTestCache()
+        models._USER_SETTINGS_CACHE = GetItemCountDict()
         UserSettings.objects.all().delete()
 
     def _post_save_handler(self, **kwargs):
         self._saved += 1
     def _post_init_handler(self, **kwargs):
         self._init += 1
-
-    def test_cache(self):
-        """ Test if USER_SETTINGS_CACHE is UserSettingsTestCache witch has some assert statements """
-        self.failUnless(isinstance(models._USER_SETTINGS_CACHE, UserSettingsTestCache))
-        def test():
-            models._USER_SETTINGS_CACHE["foo"] = "Bar"
-        self.failUnlessRaises(AssertionError, test)
 
     def test_low_level(self):
         self.failUnlessEqual(len(models._USER_SETTINGS_CACHE), 0)
@@ -270,8 +259,7 @@ class TestUserSettings(BaseTestCase):
 
         self.failUnlessEqual(self._init, 1)
         self.failUnlessEqual(self._saved, 1)
-        self.failUnlessEqual(len(models._USER_SETTINGS_CACHE), 1)
-        self.failUnless(user.pk in models._USER_SETTINGS_CACHE)
+        self.failUnlessEqual(len(models._USER_SETTINGS_CACHE), 0)
         self.failUnless(UserSettings.objects.count() == 1)
 
         instance = UserSettings.objects.get(user=user) # increment: pre_init
@@ -282,7 +270,7 @@ class TestUserSettings(BaseTestCase):
         user_settings = SettingsDict(user)
         self.failUnlessEqual(user_settings["Foo"], "new value")
 
-        self.failUnlessEqual(self._init, 2)
+        self.failUnlessEqual(self._init, 3)
         self.failUnlessEqual(self._saved, 1)
         self.failUnlessEqual(models._USER_SETTINGS_CACHE.cache_hit, 2)
 
@@ -341,7 +329,7 @@ class TestUserSettings(BaseTestCase):
             self.failUnlessEqual(response.status_code, 200)
             self.failUnlessEqual(response.content, str(no))
 
-        self.failUnlessEqual(self._init, 2)
+        self.failUnlessEqual(self._init, 4)
         self.failUnlessEqual(self._saved, 2)
         self.failUnlessEqual(models._USER_SETTINGS_CACHE.cache_hit, 10)
 
@@ -372,7 +360,7 @@ class TestUserSettings(BaseTestCase):
         user_settings["Foo"] = "Bar"
         user_settings.save()
 
-        models._USER_SETTINGS_CACHE = UserSettingsTestCache()
+        models._USER_SETTINGS_CACHE = GetItemCountDict()
 
         user_settings_instance, user_settings = UserSettings.objects.get_settings(user)
         self.failUnless(isinstance(user_settings_instance, UserSettings))
