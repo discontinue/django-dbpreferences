@@ -7,7 +7,7 @@ import subprocess
 import time
 import warnings
 
-__version__ = (0, 4, 5, "pre")
+__version__ = (0, 4, 5)
 
 
 VERSION_STRING = '.'.join(str(part) for part in __version__)
