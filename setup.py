@@ -67,7 +67,10 @@ setup(
     maintainer_email="django-dbpreferences@jensdiemer.de",
     url='http://code.google.com/p/django-dbpreferences/',
     packages=find_packages(),
-    include_package_data=True, # include package data under svn source control
+    include_package_data=True,  # include package data under svn source control
+    install_requires=[
+        "Django>=1.5,<1.6",
+    ],
     zip_safe=False,
     classifiers=[
 #        "Development Status :: 4 - Beta",
