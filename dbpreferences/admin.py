@@ -19,7 +19,7 @@ from django.template import RequestContext
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext as _
-from django.conf.urls.defaults import patterns, url
+from django.conf.urls import patterns, url
 from django.template.loader import render_to_string
 from django.shortcuts import get_object_or_404, render_to_response
 
