@@ -7,6 +7,8 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 DEBUG = True
 
+SECRET_KEY = "Only for unittests!"
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
