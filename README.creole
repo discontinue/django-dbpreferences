@@ -13,11 +13,11 @@ More Information and examples can be found here:
 
 * https://code.google.com/p/django-dbpreferences/w/list
 
-Tested with django 1.6
-
 == Django compatibility
 
-We work on Django v1.5 compatibility in [[https://github.com/jedie/django-dbpreferences/tree/django1.5|django1.5 branch]].
+|= Version |= Tested with:
+| v0.5.0   | django v1.6
+| v0.4.5   | django v1.4
 
 == history
 
