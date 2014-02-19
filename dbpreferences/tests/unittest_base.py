@@ -46,7 +46,7 @@ class BaseTestCase(TransactionTestCase):
     }
 
     def _pre_setup(self):
-        super(BaseTestCase, self).setUp()
+        super(BaseTestCase, self)._pre_setup()
         self._create_testusers()
 
     def login(self, usertype):
