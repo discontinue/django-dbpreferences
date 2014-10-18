@@ -91,7 +91,7 @@ class BaseTestCase(TransactionTestCase):
             debug_response(
                 response, self.one_browser_traceback, msg, display_tb=False
             )
-            raise self.failureException, msg
+            raise self.failureException(msg)
 
         for txt in must_contain:
             if not txt in response.content:
