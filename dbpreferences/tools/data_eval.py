@@ -29,8 +29,10 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
-import compiler
-
+try:
+    from compiler import parse
+except ImportError:
+    from ast import parse
 
 # For visitName()
 NAME_MAP = {"none": None, "true": True, "false": False}
@@ -136,7 +138,7 @@ def data_eval(source):
     source = source.replace("\r\n", "\n").replace("\r", "\n")
 
     try:
-        ast = compiler.parse(source, "eval")
+        ast = parse(source, "eval")
     except SyntaxError, e:
         raise EvalSyntaxError(e)
 

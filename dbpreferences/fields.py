@@ -59,9 +59,8 @@ class DictFormField(forms.CharField):
 
         try:
             return DictData(value)
-        except DataEvalError, err:
+        except DataEvalError as err:
             msg = "Can't deserialize: %s" % err
-#            msg = "Can't deserialize %r: %s" % (value, err)
             raise forms.ValidationError(msg)
 
 
@@ -133,8 +132,7 @@ class DictField(models.TextField):
 
         try:
             return DictData(value)
-        except DataEvalError, err:
-#            msg = "Can't deserialize: %s" % err
+        except DataEvalError as err:
             msg = "Can't deserialize %r: %s" % (value, err)
             raise forms.ValidationError(msg)
 
@@ -164,7 +162,6 @@ else:
 if __name__ == "__main__":
     import doctest
     doctest.testmod(
-#        verbose=True
         verbose=False
     )
-    print "DocTest end."
+    print("DocTest end.")
