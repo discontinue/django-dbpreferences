@@ -108,7 +108,7 @@ def import3(from_name, object_name):
 
         return import2(from_name, object_name)
     except (ImportError, SyntaxError) as err:
-        raise ImportError, "Can't import '%s' from '%s': %s" % (
+        raise ImportError("Can't import '%s' from '%s': %s") % (
             object_name, from_name, err
         )
 
