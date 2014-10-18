@@ -32,9 +32,9 @@ SKIP_FILES = ("setup.py", "test.py")
 
 def run_all_doctests():
     path = os.path.abspath(os.path.dirname(dbpreferences.__file__))
-    print
-    print "_" * 79
-    print "Running %r DocTests:\n" % path
+    print("")
+    print("_" * 79)
+    print("Running %r DocTests:\n" % path)
 
     total_files = 0
     total_doctests = 0
@@ -56,10 +56,10 @@ def run_all_doctests():
             sys.path.insert(0, root)
             try:
                 m = __import__(filename[:-3])
-            except ImportError, err:
-                print "***DocTest import %s error*** %s" % (filename, err)
-            except Exception, err:
-                print "***DocTest %s error*** %s" % (filename, err)
+            except ImportError as err:
+                print("***DocTest import %s error*** %s" % (filename, err))
+            except Exception as err:
+                print("***DocTest %s error*** %s" % (filename, err))
             else:
                 failed, attempted = testmod(m)
                 total_attempted += attempted
@@ -69,22 +69,22 @@ def run_all_doctests():
 
                 if attempted and not failed:
                     filepath = os.path.join(root, filename)
-                    print "DocTest in %s OK (failed=%i, attempted=%i)" % (
+                    print("DocTest in %s OK (failed=%i, attempted=%i)" % (
                         filepath, failed, attempted
-                    )
+                    ))
             finally:
                 del sys.path[0]
-    print "*** %i files readed, runs %i doctests: failed=%i, attempted=%i" % (
+    print("*** %i files readed, runs %i doctests: failed=%i, attempted=%i" % (
         total_files, total_doctests, total_failed, total_attempted
-    )
+    ))
 
 
 if __name__ == '__main__':
     run_all_doctests()
 
-    print
-    print "_" * 79
-    print "Running Unittests:\n"
+    print("")
+    print("_" * 79)
+    print("Running Unittests:\n")
 
     unittest.main(
 #        verbosity=99

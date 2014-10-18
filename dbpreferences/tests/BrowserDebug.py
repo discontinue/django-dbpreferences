@@ -56,11 +56,10 @@ def debug_response(response, one_browser_traceback=True, msg="", \
     stack = traceback.format_stack(limit=3)[:-1]
     stack.append(escape(msg))
     if display_tb:
-        print
-        print "debug_response:"
-        print "-"*80
-        print "\n".join(stack)
-        print "-"*80
+        print("\ndebug_response:")
+        print("-"*80)
+        print("\n".join(stack))
+        print("-"*80)
 
     stack_info = "".join(stack)
 
@@ -103,7 +102,7 @@ def debug_response(response, one_browser_traceback=True, msg="", \
     os.write(fd, content)
     os.close(fd)
     url = "file://%s" % file_path
-    print "\nDEBUG html page in Browser! (url: %s)" % url
+    print("\nDEBUG html page in Browser! (url: %s)" % url)
     try:
         webbrowser.open(url)
     except:
