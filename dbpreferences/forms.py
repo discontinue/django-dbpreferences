@@ -11,6 +11,7 @@
 
 
 import warnings
+import six
 
 from django import forms
 from django.contrib.sites.models import Site
@@ -35,7 +36,7 @@ else:
 class DBPreferencesBaseForm(forms.Form):
     preference_cache = {}
     def __init__(self, *args, **kwargs):
-        assert(isinstance(self.Meta.app_label, basestring))
+        assert(isinstance(self.Meta.app_label, six.string_types))
         super(DBPreferencesBaseForm, self).__init__(*args, **kwargs)
 
         self.current_site = Site.objects.get_current()

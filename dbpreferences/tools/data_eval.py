@@ -29,6 +29,8 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
+import six
+
 try:
     from compiler import parse
 except ImportError:
@@ -133,7 +135,7 @@ def data_eval(source):
     """
     if isinstance(source, dict):
         return source
-    elif not isinstance(source, basestring):
+    elif not isinstance(source, six.string_types):
         raise DataEvalError("source must be string/unicode! (It's type: %r)" % type(source))
     source = source.replace("\r\n", "\n").replace("\r", "\n")
 

@@ -15,6 +15,7 @@ if __name__ == "__main__":
 
 import sys
 import pprint
+import six
 
 from django import forms
 from django.db import models
@@ -75,14 +76,14 @@ class DictData(dict):
     {'foo': 'bar'}
     """
     def __init__(self, value):
-        if isinstance(value, basestring):
+        if isinstance(value, six.string_types):
             self.value = value
             super(DictData, self).__init__(data_eval.data_eval(value))
         elif isinstance(value, dict):
             self.value = None
             super(DictData, self).__init__(value)
         else:
-            raise TypeError("init data is not from type basestring or dict (It's type: %r)" % type(value))
+            raise TypeError("init data is not from type str/basestring or dict (It's type: %r)" % type(value))
 
     def __repr__(self):
         """ used in django admin form field and in DictField.get_db_prep_save() """

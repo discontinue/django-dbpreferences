@@ -16,6 +16,8 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
+import six
+
 #______________________________________________________________________________
 # internal import functions
 
@@ -57,7 +59,7 @@ def import2(from_name, fromlist=None, globals={}, locals={}):
     AttributeError: 'os' object has no attribute 'gibtsnicht
     """
 
-    if isinstance(fromlist, basestring):
+    if isinstance(fromlist, six.string_types):
         # Only one from objects name
         fromlist = [fromlist]
 
@@ -108,9 +110,9 @@ def import3(from_name, object_name):
 
         return import2(from_name, object_name)
     except (ImportError, SyntaxError) as err:
-        raise ImportError("Can't import '%s' from '%s': %s") % (
+        raise ImportError("Can't import '%s' from '%s': %s" % (
             object_name, from_name, err
-        )
+        ))
 
 
 
