@@ -200,7 +200,6 @@ class UserSettings(models.Model):
 if __name__ == "__main__":
     import doctest
     doctest.testmod(
-#        verbose=True
         verbose=False
     )
-    print "DocTest end."
+    print("DocTest end.")
