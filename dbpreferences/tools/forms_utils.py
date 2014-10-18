@@ -199,9 +199,8 @@ class ModelForm2(forms.ModelForm):
 if __name__ == "__main__":
     import doctest
     doctest.testmod(
-#        verbose=True
         verbose=False
     )
-    print "DocTest end."
+    print("DocTest end.")
 
     unittest.main()

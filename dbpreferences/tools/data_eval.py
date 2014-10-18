@@ -139,7 +139,7 @@ def data_eval(source):
 
     try:
         ast = parse(source, "eval")
-    except SyntaxError, e:
+    except SyntaxError as e:
         raise EvalSyntaxError(e)
 
     return SafeEval().visit(ast)
@@ -182,7 +182,6 @@ class TestDataEval(unittest.TestCase):
     def assert_eval(self, data):
         data_string = repr(data)
         result = data_eval(data_string)
-        #print data, type(data), result, type(result)
         self.assertEqual(result, data)
 
     def testNone(self):
