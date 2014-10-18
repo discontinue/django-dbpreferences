@@ -22,7 +22,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.admin',
-
+    'django.contrib.staticfiles',
     'dbpreferences',
 )
 
@@ -35,6 +35,8 @@ MIDDLEWARE_CLASSES = (
 )
 
 SITE_ID = 1
+
+STATIC_URL = "/static/"
 
 ROOT_URLCONF = "dbpreferences.tests.test_urls"
 
