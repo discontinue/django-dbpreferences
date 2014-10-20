@@ -11,7 +11,6 @@
 
 
 import warnings
-import six
 
 from django import forms
 from django.contrib.sites.models import Site
@@ -19,6 +18,7 @@ from django.core.exceptions import ValidationError
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.forms.fields import BooleanField
+from django.utils import six
 
 from dbpreferences.models import Preference
 from dbpreferences.tools import forms_utils, easy_import

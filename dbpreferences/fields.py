@@ -15,13 +15,13 @@ if __name__ == "__main__":
 
 import sys
 import pprint
-import six
 
 from django import forms
 from django.db import models
 from django.contrib.sites.models import Site
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User, Group
+from django.utils import six
 
 from dbpreferences.tools import forms_utils, easy_import, data_eval
 from dbpreferences.tools.data_eval import DataEvalError

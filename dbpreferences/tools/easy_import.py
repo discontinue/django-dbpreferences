@@ -16,7 +16,7 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
-import six
+from django.utils import six
 
 #______________________________________________________________________________
 # internal import functions
