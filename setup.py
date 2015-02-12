@@ -5,7 +5,7 @@
     distutils setup
     ~~~~~~~~~~~~~~~
 
-    :copyleft: 2009-2014 by the django-dbpreferences team, see AUTHORS for more details.
+    :copyleft: 2009-2015 by the django-dbpreferences team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -69,7 +69,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,  # include package data under svn source control
     install_requires=[
-        "Django>=1.5,<1.7", # Django v1.6.x
+        "Django>=1.5",
     ],
     zip_safe=False,
     classifiers=[
