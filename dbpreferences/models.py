@@ -173,7 +173,7 @@ class UserSettingsManager(models.Manager):
 class UserSettings(models.Model):
     objects = UserSettingsManager()
 
-    user = models.ForeignKey(User, unique=True, related_name="%(class)s_user")
+    user = models.OneToOneField(User, related_name="%(class)s_user")
     settings = DictField(null=False, blank=False,
         help_text="serialized user settings data dictionary")
 
