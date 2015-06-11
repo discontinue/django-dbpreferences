@@ -12,12 +12,9 @@ from django.test.utils import get_runner
 from django.contrib import admin
 
 from dbpreferences.models import Preference
-from dbpreferences.tests.doctest_utils import run_all_doctests
 
 
 def runtests():
-    run_all_doctests()
-
     admin.site.unregister(Preference)
 
     TestRunner = get_runner(settings)

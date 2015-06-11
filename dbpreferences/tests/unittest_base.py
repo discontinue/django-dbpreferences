@@ -78,7 +78,7 @@ class BaseTestCase(TransactionTestCase):
             user.is_staff = is_staff
             user.is_superuser = is_superuser
             user.save()
-        for usertype, userdata in self.TEST_USERS.iteritems():
+        for usertype, userdata in self.TEST_USERS.items():
             create_user(**userdata)
 
     def assertResponse(self, response, must_contain=(), must_not_contain=()):

@@ -323,7 +323,7 @@ class TestUserSettings(BaseTestCase):
 
     def test_user_settings_cache(self):
         self.login(usertype="staff")
-        for no in xrange(10):
+        for no in range(10):
             url = reverse("test_user_settings_cache", kwargs={"no": no})
             response = self.client.get(url)
             self.failUnlessEqual(response.status_code, 200)

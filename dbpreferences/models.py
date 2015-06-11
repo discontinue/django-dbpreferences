@@ -119,7 +119,7 @@ class Preference(models.Model):
                 self.preferences = f.cleaned_data
             else:
                 errors = []
-                for k, v in f._errors.iteritems():
+                for k, v in f._errors.items():
                     errors.append("'%s': '%s'" % (k, ", ".join(v)))
                 message_dict["preferences"] = errors
 

@@ -44,19 +44,20 @@ def import2(from_name, fromlist=None, globals={}, locals={}):
 
     >>> from os import sep, pathsep
     >>> sep2, pathsep2 = import2("os", ["sep", "pathsep"])
-    >>> sep is sep2 ; pathsep is pathsep2
-    True
+    >>> sep is sep2 and pathsep is pathsep2
     True
 
-    >>> import2("existiertnicht")
-    Traceback (most recent call last):
-        ...
-    ImportError: No module named existiertnicht
+    >>> try:
+    ...     import2("doesnentexisst")
+    ... except ImportError as err:
+    ...     err.args == ("No module named 'doesnentexisst'",)
+    True
 
-    >>> import2("os", "gibtsnicht")
-    Traceback (most recent call last):
-        ...
-    AttributeError: 'os' object has no attribute 'gibtsnicht
+    >>> try:
+    ...     import2("os", "doesnentexisst")
+    ... except AttributeError as err:
+    ...     err.args == ("'os' object has no attribute 'doesnentexisst",)
+    True
     """
 
     if isinstance(fromlist, six.string_types):
@@ -98,10 +99,11 @@ def import3(from_name, object_name):
     >>> time is time2
     True
 
-    >>> import3(u"A", u"B")
-    Traceback (most recent call last):
-        ...
-    ImportError: Can't import 'B' from 'A': No module named A
+    >>> try:
+    ...     import3(u"A", u"B")
+    ... except ImportError as err:
+    ...     err.args == ("Can't import 'B' from 'A': No module named 'A'",)
+    True
     """
     try:
         # unicode -> string

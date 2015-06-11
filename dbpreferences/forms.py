@@ -122,7 +122,7 @@ class DBPreferencesBaseForm(forms.Form):
 
         if not self.is_valid():
             errors = []
-            for item, msg in self._errors.iteritems():
+            for item, msg in self._errors.items():
                 if item in self.data:
                     value_info = "(current value is: %r)" % self.data[item]
                 else:

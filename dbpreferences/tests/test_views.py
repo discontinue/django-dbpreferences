@@ -23,7 +23,7 @@ def test_user_settings(request, test_name, key, value):
     else:
         raise
 
-    return HttpResponse(output, mimetype="text/plain")
+    return HttpResponse(output, content_type="text/plain")
 
 
 

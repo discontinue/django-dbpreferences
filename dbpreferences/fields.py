@@ -32,21 +32,25 @@ class DictFormField(forms.CharField):
     """
     form field for preferences dict
     
-    >>> DictFormField().clean('''{"foo":"bar"}''')
-    {'foo': 'bar'}
-    
-    >>> DictFormField().clean("error")
-    Traceback (most recent call last):
-        ...
-    ValidationError: [u"Can't deserialize: Error 'Strings must be quoted' in line 1: 'error'"]
-    
-    >>> DictFormField().clean(None)
-    Traceback (most recent call last):
-        ...
-    ValidationError: [u'This field is required.']
-    
-    >>> DictFormField(required=False).clean(None)
-    u''
+    >>> DictFormField().clean('''{"foo":"bar"}''') == {'foo': 'bar'}
+    True
+
+    >>> from django.core.exceptions import ValidationError
+    >>> try:
+    ...     DictFormField().clean("error")
+    ... except ValidationError as err:
+    ...     err.message == "Can't deserialize: Error 'Strings must be quoted' in line 1: 'error'"
+    True
+
+    >>> from django.core.exceptions import ValidationError
+    >>> try:
+    ...     DictFormField().clean(None)
+    ... except ValidationError as err:
+    ...     err.message == 'This field is required.'
+    True
+
+    >>> DictFormField(required=False).clean(None) == ''
+    True
     """
     def clean(self, value):
         """
@@ -95,24 +99,25 @@ class DictField(models.TextField):
     A dict field.
     Stores a python dict into a text field.
     
-    >>> d = DictField().to_python('''{"foo":"bar"}''')
-    >>> d
-    {'foo': 'bar'}
+    >>> d=DictField().to_python('''{"foo":"bar"}''')
+    >>> d == {'foo': 'bar'}
+    True
     >>> isinstance(d, DictData)
     True
-    >>> DictField().get_db_prep_save(d)
-    "{'foo': 'bar'}"
-    
-    >>> d = DictField().to_python(None)
-    Traceback (most recent call last):
-        ...
-    ValidationError: [u'This field cannot be null.']
-    
+    >>> DictField().get_db_prep_save(d) == "{'foo': 'bar'}"
+    True
+
+    >>> try:
+    ...     d = DictField().to_python(None)
+    ... except ValidationError as err:
+    ...     err.message == 'This field cannot be null.'
+    True
+
     >>> f = DictField().formfield()
     >>> isinstance(f, DictFormField)
     True
-    >>> f.clean('''{"foo":"bar"}''')
-    {'foo': 'bar'}
+    >>> f.clean('''{"foo":"bar"}''') == {'foo': 'bar'}
+    True
     """
     __metaclass__ = models.SubfieldBase
 

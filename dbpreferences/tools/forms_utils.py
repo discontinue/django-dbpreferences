@@ -11,6 +11,7 @@ import unittest
 
 from django import forms
 from django.forms import ValidationError
+from django.utils import six
 from django.utils.encoding import smart_text, force_text
 from django.utils.html import escape
 
@@ -19,8 +20,8 @@ def setup_help_text(form):
     """
     Append on every help_text the default information (The initial value)
     """
-    for field_name, field in form.base_fields.iteritems():
-        help_text = unicode(field.help_text) # translate gettext_lazy
+    for field_name, field in form.base_fields.items():
+        help_text = six.text_type(field.help_text) # translate gettext_lazy
         if u"(default: '" in help_text:
             # The default information was inserted in the past
             return
@@ -34,7 +35,7 @@ def get_init_dict(form):
     Returns a dict with all initial values from a newforms class.
     """
     init_dict = {}
-    for field_name, field in form.base_fields.iteritems():
+    for field_name, field in form.base_fields.items():
         initial = field.initial
 #        if initial == None:
 #            msg = (
@@ -60,10 +61,10 @@ class ChoiceField2(forms.ChoiceField):
     Returns the value and not the key in clean().
 
     >>> f = ChoiceField2(choices=["A","B","C"])
-    >>> f.choices
-    [('0', u'A'), ('1', u'B'), ('2', u'C')]
-    >>> f.clean('1')
-    u'B'
+    >>> f.choices == [('0', 'A'), ('1', 'B'), ('2', 'C')]
+    True
+    >>> f.clean('1') == 'B'
+    True
     """
     def __init__(self, *args, **kwargs):
         choices = kwargs.pop("choices")
@@ -87,8 +88,8 @@ class StripedCharField(forms.CharField):
     Same as forms.CharField but stripes the output.
 
     >>> f = StripedCharField()
-    >>> f.clean('\\n\\n[\\nTEST\\n]\\n\\n')
-    u'[\\nTEST\\n]'
+    >>> f.clean('\\n\\n[\\nTEST\\n]\\n\\n') == '[\\nTEST\\n]'
+    True
     """
     def clean(self, value):
         value = super(StripedCharField, self).clean(value)
@@ -101,12 +102,12 @@ class ListCharField(forms.CharField):
     If the initial is a list/tuple, it would be joined with the seperator.
 
     >>> f = ListCharField()
-    >>> f.clean(' one two  tree')
-    [u'one', u'two', u'tree']
+    >>> f.clean(' one two  tree') == ['one', 'two', 'tree']
+    True
 
     >>> f = ListCharField(seperator="\\n")
-    >>> f.clean('one\\ntwo\\n\\ntree\\n\\n')
-    [u'one', u'two', u'tree']
+    >>> f.clean('one\\ntwo\\n\\ntree\\n\\n') == ['one', 'two', 'tree']
+    True
     """
     def __init__(self, seperator=" ", *args, **kwargs):
         self.seperator = seperator
@@ -146,22 +147,24 @@ class InternalURLField(forms.CharField):
     a external.
 
     >>> f = InternalURLField()
-    >>> f.clean('/a/foobar/url/')
-    u'/a/foobar/url/'
+    >>> f.clean('/a/foobar/url/') == '/a/foobar/url/'
+    True
 
-    >>> f.clean('http://eval.domain.tld')
-    Traceback (most recent call last):
-        ...
-    ValidationError: [u'Open redirect found.']
+    >>> try:
+    ...     f.clean('http://eval.domain.tld')
+    ... except ValidationError as err:
+    ...     err.message == 'Open redirect found.'
+    True
 
     >>> f = InternalURLField(must_start_with="/_command/")
-    >>> f.clean('/_command/a/foobar/url/')
-    u'/_command/a/foobar/url/'
+    >>> f.clean('/_command/a/foobar/url/') == '/_command/a/foobar/url/'
+    True
 
-    >>> f.clean('/a/wrong/url/')
-    Traceback (most recent call last):
-        ...
-    ValidationError: [u'Open redirect found.']
+    >>> try:
+    ...     f.clean('/a/wrong/url/')
+    ... except ValidationError as err:
+    ...     err.message == 'Open redirect found.'
+    True
     """
     default_error_message = "Open redirect found."
 

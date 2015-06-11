@@ -19,13 +19,7 @@
     Based on "Safe" Eval by Michael Spencer
     http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/364469
 
-    Last commit info:
-    ~~~~~~~~~~~~~~~~~
-    $LastChangedDate$
-    $Rev$
-    $Author: JensDiemer $
-
-    :copyleft: 2008 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2008-2015 by the dbpreferences team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
