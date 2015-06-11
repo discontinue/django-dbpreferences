@@ -21,6 +21,7 @@ from django.db import models
 from django.contrib.sites.models import Site
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User, Group
+from django.utils import six
 
 from dbpreferences.tools import forms_utils, easy_import, data_eval
 from dbpreferences.tools.data_eval import DataEvalError
@@ -59,9 +60,8 @@ class DictFormField(forms.CharField):
 
         try:
             return DictData(value)
-        except DataEvalError, err:
+        except DataEvalError as err:
             msg = "Can't deserialize: %s" % err
-#            msg = "Can't deserialize %r: %s" % (value, err)
             raise forms.ValidationError(msg)
 
 
@@ -76,14 +76,14 @@ class DictData(dict):
     {'foo': 'bar'}
     """
     def __init__(self, value):
-        if isinstance(value, basestring):
+        if isinstance(value, six.string_types):
             self.value = value
             super(DictData, self).__init__(data_eval.data_eval(value))
         elif isinstance(value, dict):
             self.value = None
             super(DictData, self).__init__(value)
         else:
-            raise TypeError("init data is not from type basestring or dict (It's type: %r)" % type(value))
+            raise TypeError("init data is not from type str/basestring or dict (It's type: %r)" % type(value))
 
     def __repr__(self):
         """ used in django admin form field and in DictField.get_db_prep_save() """
@@ -133,8 +133,7 @@ class DictField(models.TextField):
 
         try:
             return DictData(value)
-        except DataEvalError, err:
-#            msg = "Can't deserialize: %s" % err
+        except DataEvalError as err:
             msg = "Can't deserialize %r: %s" % (value, err)
             raise forms.ValidationError(msg)
 
@@ -164,7 +163,6 @@ else:
 if __name__ == "__main__":
     import doctest
     doctest.testmod(
-#        verbose=True
         verbose=False
     )
-    print "DocTest end."
+    print("DocTest end.")

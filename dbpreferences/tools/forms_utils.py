@@ -11,7 +11,7 @@ import unittest
 
 from django import forms
 from django.forms import ValidationError
-from django.utils.encoding import smart_unicode, force_unicode
+from django.utils.encoding import smart_text, force_text
 from django.utils.html import escape
 
 
@@ -24,7 +24,7 @@ def setup_help_text(form):
         if u"(default: '" in help_text:
             # The default information was inserted in the past
             return
-        initial_text = escape(force_unicode(field.initial))
+        initial_text = escape(force_text(field.initial))
         field.help_text = u"%s (default: '%s')" % (
             field.help_text, initial_text
         )
@@ -68,7 +68,7 @@ class ChoiceField2(forms.ChoiceField):
     def __init__(self, *args, **kwargs):
         choices = kwargs.pop("choices")
         kwargs["choices"] = self.choices = [
-            (str(no), smart_unicode(value)) for no, value in enumerate(choices)
+            (str(no), smart_text(value)) for no, value in enumerate(choices)
         ]
 
         super(ChoiceField2, self).__init__(*args, **kwargs)
@@ -199,9 +199,8 @@ class ModelForm2(forms.ModelForm):
 if __name__ == "__main__":
     import doctest
     doctest.testmod(
-#        verbose=True
         verbose=False
     )
-    print "DocTest end."
+    print("DocTest end.")
 
     unittest.main()

@@ -18,6 +18,7 @@ from django.core.exceptions import ValidationError
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.forms.fields import BooleanField
+from django.utils import six
 
 from dbpreferences.models import Preference
 from dbpreferences.tools import forms_utils, easy_import
@@ -35,7 +36,7 @@ else:
 class DBPreferencesBaseForm(forms.Form):
     preference_cache = {}
     def __init__(self, *args, **kwargs):
-        assert(isinstance(self.Meta.app_label, basestring))
+        assert(isinstance(self.Meta.app_label, six.string_types))
         super(DBPreferencesBaseForm, self).__init__(*args, **kwargs)
 
         self.current_site = Site.objects.get_current()

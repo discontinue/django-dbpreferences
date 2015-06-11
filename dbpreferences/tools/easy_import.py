@@ -16,6 +16,8 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
+from django.utils import six
+
 #______________________________________________________________________________
 # internal import functions
 
@@ -57,7 +59,7 @@ def import2(from_name, fromlist=None, globals={}, locals={}):
     AttributeError: 'os' object has no attribute 'gibtsnicht
     """
 
-    if isinstance(fromlist, basestring):
+    if isinstance(fromlist, six.string_types):
         # Only one from objects name
         fromlist = [fromlist]
 
@@ -71,7 +73,7 @@ def import2(from_name, fromlist=None, globals={}, locals={}):
     for object_name in fromlist:
         try:
             result.append(getattr(obj, object_name))
-        except AttributeError, e:
+        except AttributeError as e:
             msg = "'%s' object has no attribute '%s" % (
                 obj.__name__, object_name
             )
@@ -107,17 +109,16 @@ def import3(from_name, object_name):
         object_name = str(object_name)
 
         return import2(from_name, object_name)
-    except (ImportError, SyntaxError), err:
-        raise ImportError, "Can't import '%s' from '%s': %s" % (
+    except (ImportError, SyntaxError) as err:
+        raise ImportError("Can't import '%s' from '%s': %s" % (
             object_name, from_name, err
-        )
+        ))
 
 
 
 if __name__ == "__main__":
-    print "runnint doctest for %s" % __file__
+    print("runnint doctest for %s" % __file__)
     verbose = False
-#    verbose = True
     import doctest
     doctest.testmod(verbose=verbose)
-    print "--- END ---"
+    print("--- END ---")

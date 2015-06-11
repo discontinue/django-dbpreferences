@@ -29,8 +29,12 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
-import compiler
+from django.utils import six
 
+try:
+    from compiler import parse
+except ImportError:
+    from ast import parse
 
 # For visitName()
 NAME_MAP = {"none": None, "true": True, "false": False}
@@ -131,13 +135,13 @@ def data_eval(source):
     """
     if isinstance(source, dict):
         return source
-    elif not isinstance(source, basestring):
+    elif not isinstance(source, six.string_types):
         raise DataEvalError("source must be string/unicode! (It's type: %r)" % type(source))
     source = source.replace("\r\n", "\n").replace("\r", "\n")
 
     try:
-        ast = compiler.parse(source, "eval")
-    except SyntaxError, e:
+        ast = parse(source, "eval")
+    except SyntaxError as e:
         raise EvalSyntaxError(e)
 
     return SafeEval().visit(ast)
@@ -180,7 +184,6 @@ class TestDataEval(unittest.TestCase):
     def assert_eval(self, data):
         data_string = repr(data)
         result = data_eval(data_string)
-        #print data, type(data), result, type(result)
         self.assertEqual(result, data)
 
     def testNone(self):
