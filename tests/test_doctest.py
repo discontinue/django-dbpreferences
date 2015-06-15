@@ -40,15 +40,13 @@ def get_all_doctests(base_path, verbose=False):
                 module = __import__(filename[:-3])
             except ImportError as err:
                 if verbose:
-                    print(
-                        "\tDocTest import %s error %s" % (filename, err),
-                        file=sys.stderr
+                    sys.stderr.write(
+                        "\tDocTest import %s error %s\n" % (filename, err)
                     )
             except Exception as err:
                 if verbose:
-                    print(
-                        "\tDocTest %s error %s" % (filename, err),
-                        file=sys.stderr
+                    sys.stderr.write(
+                        "\tDocTest %s error %s\n" % (filename, err)
                     )
             else:
                 try:
@@ -59,9 +57,8 @@ def get_all_doctests(base_path, verbose=False):
                 test_count = suite.countTestCases()
                 if test_count<1:
                     if verbose:
-                        print(
-                            "\tNo DocTests in %r" % module.__name__,
-                            file=sys.stderr
+                        sys.stderr.write(
+                            "\tNo DocTests in %r\n" % module.__name__
                         )
                     continue
 
@@ -69,9 +66,8 @@ def get_all_doctests(base_path, verbose=False):
                     file_info = module.__file__
                 else:
                     file_info = module.__name__
-                print(
-                    "\t%i DocTests in %r" % (test_count,file_info),
-                    file=sys.stderr
+                sys.stderr.write(
+                    "\t%i DocTests in %r\n" % (test_count,file_info)
                 )
                 modules.append(module)
             finally:
@@ -82,7 +78,7 @@ def get_all_doctests(base_path, verbose=False):
 
 
 def load_tests(loader, tests, ignore):
-    print("\ncollect DocTests:", file=sys.stderr)
+    sys.stderr.write("\ncollect DocTests:\n")
     path = os.path.abspath(os.path.dirname(dbpreferences.__file__))
     modules = get_all_doctests(
         base_path=path,

@@ -27,6 +27,12 @@ from django.utils import six
 NAME_MAP = {"none": None, "true": True, "false": False}
 
 
+if six.PY2:
+    AST_TEXT_NODES = ast.Str
+else:
+    AST_TEXT_NODES = (ast.Str, ast.Bytes)
+
+
 def pprint_node(node):
     for attr in dir(node):
         print(attr, getattr(node, attr, "-"))
@@ -52,7 +58,7 @@ class DataEval(object):
         if isinstance(node, ast.Expression):
             node = node.body
 
-        if isinstance(node, (ast.Str, ast.Bytes)):
+        if isinstance(node, AST_TEXT_NODES):
             return node.s
         elif isinstance(node, ast.Num):
             return node.n
@@ -65,7 +71,8 @@ class DataEval(object):
         elif isinstance(node, ast.Dict):
             return dict((self.convert(k), self.convert(v)) for k, v
                 in zip(node.keys, node.values))
-        elif isinstance(node, ast.NameConstant):
+        elif not six.PY2 and isinstance(node, ast.NameConstant):
+            # ast.NameConstant exists only in Py3 !
             return node.value
         elif isinstance(node, ast.UnaryOp) and \
                 isinstance(node.op, (ast.UAdd, ast.USub)) and \
