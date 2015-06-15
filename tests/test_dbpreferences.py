@@ -109,7 +109,7 @@ class TestDBPref(BaseTestCase):
         response = self.client.get(url)
         self.failUnlessEqual(response.status_code, 200)
         self.assertResponse(response,
-            must_contain=("Change Preferences for", "dbpreferences.tests.UnittestForm"),
+            must_contain=("Change Preferences for", "test_project.UnittestForm"),
             must_not_contain=("Error", "Traceback")
         )
 
@@ -120,7 +120,7 @@ class TestDBPref(BaseTestCase):
         response = self.client.get(url)
         self.failUnlessEqual(response.status_code, 200)
         self.assertResponse(response,
-            must_contain=("Change Preferences for", "dbpreferences.tests.UnittestForm"),
+            must_contain=("Change Preferences for", "test_project.UnittestForm"),
             must_not_contain=("Error", "Traceback")
         )
 
