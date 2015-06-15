@@ -95,8 +95,17 @@ class DictField(models.TextField):
     >>> f.clean('''{"foo":"bar"}''') == {'foo': 'bar'}
     True
     """
-    __metaclass__ = models.SubfieldBase
+    # https://docs.djangoproject.com/en/1.8/releases/1.8/#subfieldbase
+    __metaclass__ = models.SubfieldBase # will be removed in Django 2.0
 
+    # def __getattribute__(self, item):
+    #     print("DictField.getattribute:", item)
+    #     return super(DictField, self).__getattribute__(item)
+    #
+    # def __getattr__(self, item):
+    #     print("DictField.getattr:", item)
+    #     return super(DictField, self).__getattr__(item)
+#
     def _check_null(self, value):
         if value is None and self.null == False:
             raise forms.ValidationError(_("This field cannot be null."))
@@ -107,6 +116,9 @@ class DictField(models.TextField):
         Converts the input value into the expected Python data type, raising
         django.core.exceptions.ValidationError if the data can't be converted.
         Returns the converted value. Subclasses should override this.
+
+        to_python() will be not called since 1.8:
+        https://docs.djangoproject.com/en/1.8/releases/1.8/#subfieldbase
         """
         value = self._check_null(value)
         if value is None:
@@ -118,32 +130,42 @@ class DictField(models.TextField):
             msg = "Can't deserialize %r: %s" % (value, err)
             raise forms.ValidationError(msg)
 
-    def get_db_prep_save(self, value, **kwargs):
-        "Returns field's value prepared for saving into a database."
+    def from_db_value(self, value, expression=None, connection=None, context=None):
+        """
+        Converts the input value into the expected Python data type, raising
+        django.core.exceptions.ValidationError if the data can't be converted.
+        Returns the converted value. Subclasses should override this.
+
+        from_db_value() is new in new in django 1.8!
+        """
+        if isinstance(value, dict):
+            return value
+
         value = self._check_null(value)
         if value is None:
             return None
 
-        assert isinstance(value, (DictData, dict))
-        return repr(value)
-#
+        try:
+            return DictData(value)
+        except DataEvalError as err:
+            msg = "Can't deserialize %r: %s" % (value, err)
+            raise forms.ValidationError(msg)
+
+    def get_prep_value(self, value):
+        if value:
+            return repr(value)
+        else:
+            return ""
+
+    def get_db_prep_value(self, value, connection, prepared=False):
+        "Returns field's value prepared for saving into a database."
+        if value:
+            return repr(value)
+        else:
+            return ""
+
     def formfield(self, **kwargs):
         # Always use own form field and widget:
         kwargs['form_class'] = DictFormField
         return super(DictField, self).formfield(**kwargs)
-
-
-try:
-    from south.modelsinspector import add_introspection_rules
-except ImportError:
-    pass
-else:
-    add_introspection_rules([], ["^dbpreferences\.fields\.DictField"])
-
-
-if __name__ == "__main__":
-    import doctest
-    doctest.testmod(
-        verbose=False
-    )
-    print("DocTest end.")
+#
