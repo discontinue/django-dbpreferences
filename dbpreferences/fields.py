@@ -35,23 +35,6 @@ class DictFormField(forms.CharField):
     
     >>> DictFormField().clean('''{"foo":"bar"}''') == {'foo': 'bar'}
     True
-
-    >>> from django.core.exceptions import ValidationError
-    >>> try:
-    ...     DictFormField().clean("error")
-    ... except ValidationError as err:
-    ...     err.message == "Can't deserialize: Error 'Strings must be quoted' in line 1: 'error'"
-    True
-
-    >>> from django.core.exceptions import ValidationError
-    >>> try:
-    ...     DictFormField().clean(None)
-    ... except ValidationError as err:
-    ...     err.message == 'This field is required.'
-    True
-
-    >>> DictFormField(required=False).clean(None) == ''
-    True
     """
     def clean(self, value):
         """
@@ -73,12 +56,12 @@ class DictFormField(forms.CharField):
 class DictData(dict):
     """
     Can init with a dict:
-    >>> DictData({"foo":"bar"})
-    {'foo': 'bar'}
+    >>> DictData({"foo":"bar"}) == {'foo': 'bar'}
+    True
     
     Can also init with a string:
-    >>> DictData('''{"foo":"bar"}''')
-    {'foo': 'bar'}
+    >>> DictData('''{"foo":"bar"}''') == {'foo': 'bar'}
+    True
     """
     def __init__(self, value):
         if isinstance(value, six.string_types):
@@ -108,16 +91,7 @@ class DictField(models.TextField):
     >>> DictField().get_db_prep_save(d) == "{'foo': 'bar'}"
     True
 
-    >>> from django.core.exceptions import ValidationError
-    >>> try:
-    ...     d = DictField().to_python(None)
-    ... except ValidationError as err:
-    ...     err.message == 'This field cannot be null.'
-    True
-
     >>> f = DictField().formfield()
-    >>> isinstance(f, DictFormField)
-    True
     >>> f.clean('''{"foo":"bar"}''') == {'foo': 'bar'}
     True
     """
