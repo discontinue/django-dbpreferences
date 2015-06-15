@@ -68,4 +68,4 @@ def test_user_settings_cache(request, no):
         init_count, should_init_count, no
     )
 
-    return HttpResponse(no, mimetype="text/plain")
+    return HttpResponse(no, content_type="text/plain")

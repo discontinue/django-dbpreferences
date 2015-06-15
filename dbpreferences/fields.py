@@ -8,6 +8,7 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
+
 if __name__ == "__main__":
     # For doctest only
     import os
@@ -107,6 +108,7 @@ class DictField(models.TextField):
     >>> DictField().get_db_prep_save(d) == "{'foo': 'bar'}"
     True
 
+    >>> from django.core.exceptions import ValidationError
     >>> try:
     ...     d = DictField().to_python(None)
     ... except ValidationError as err:

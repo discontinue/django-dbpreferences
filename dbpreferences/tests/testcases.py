@@ -4,7 +4,7 @@
 
     INFO: dbpreferences should be exist in python path!
 """
-
+from django.utils import six
 
 if __name__ == "__main__":
     # run unittest directly
@@ -292,7 +292,7 @@ class TestUserSettings(BaseTestCase):
         url = reverse("test_user_settings", kwargs={"test_name": "base_test", "key": "Foo", "value": "Bar"})
         response = self.client.get(url)
         self.failUnlessEqual(response.status_code, 200)
-        self.failUnlessEqual(response.content, "FooBar")
+        self.failUnlessEqual(six.text_type(response.content, "UTF-8"), "FooBar")
 
     def test_view_get(self):
         self.login(usertype="staff")
@@ -303,7 +303,7 @@ class TestUserSettings(BaseTestCase):
         )
         response = self.client.get(url)
         self.failUnlessEqual(response.status_code, 200)
-        self.failUnlessEqual(response.content, "initial value")
+        self.failUnlessEqual(six.text_type(response.content, "UTF-8"), "initial value")
 
         # change with .setitem()
         url = reverse("test_user_settings",
@@ -311,7 +311,7 @@ class TestUserSettings(BaseTestCase):
         )
         response = self.client.get(url)
         self.failUnlessEqual(response.status_code, 200)
-        self.failUnlessEqual(response.content, "new value")
+        self.failUnlessEqual(six.text_type(response.content, "UTF-8"), "new value")
 
         # now, the .get() method should returned the current value
         url = reverse("test_user_settings",
@@ -319,7 +319,7 @@ class TestUserSettings(BaseTestCase):
         )
         response = self.client.get(url)
         self.failUnlessEqual(response.status_code, 200)
-        self.failUnlessEqual(response.content, "new value")
+        self.failUnlessEqual(six.text_type(response.content, "UTF-8"), "new value")
 
     def test_user_settings_cache(self):
         self.login(usertype="staff")
@@ -327,7 +327,7 @@ class TestUserSettings(BaseTestCase):
             url = reverse("test_user_settings_cache", kwargs={"no": no})
             response = self.client.get(url)
             self.failUnlessEqual(response.status_code, 200)
-            self.failUnlessEqual(response.content, str(no))
+            self.failUnlessEqual(six.text_type(response.content, "UTF-8"), str(no))
 
         #self.failUnlessEqual(self._init, 4)
         self.failUnlessEqual(self._saved, 2)
