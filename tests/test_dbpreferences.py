@@ -21,8 +21,9 @@ from dbpreferences.fields import DictField, DictData, DictFormField
 from dbpreferences.forms import DBPreferencesBaseForm
 from dbpreferences.middleware import SettingsDict
 from dbpreferences.models import Preference, UserSettings
-from dbpreferences.tests.preference_forms import UnittestForm, TestModelChoiceForm
-from dbpreferences.tests.unittest_base import BaseTestCase
+
+from test_project.preference_forms import UnittestForm, TestModelChoiceForm
+from tests.utils.unittest_base import BaseTestCase
 
 
 class FormWithoutMeta(DBPreferencesBaseForm):
@@ -72,6 +73,7 @@ class TestDBPref(BaseTestCase):
         form = UnittestForm()
         self.assertEqual(Preference.objects.count(), 1)
         pref_data = form.get_preferences()
+        self.assertIsInstance(pref_data, dict)
         self.assertEqual(Preference.objects.count(), 1)
         self.failUnless(isinstance(pref_data, dict),
             "It's not dict, it's: %s - %r" % (type(pref_data), pref_data))

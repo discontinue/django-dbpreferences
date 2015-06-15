@@ -13,7 +13,7 @@ class UnittestForm(DBPreferencesBaseForm):
     font_size = forms.FloatField(initial=0.7, min_value=0.1, help_text="font size")
 
     class Meta:
-        app_label = 'dbpreferences.tests'
+        app_label = 'test_project'
 
 
 class TestModelChoiceForm(DBPreferencesBaseForm):
@@ -23,4 +23,4 @@ class TestModelChoiceForm(DBPreferencesBaseForm):
     )
 
     class Meta:
-        app_label = 'dbpreferences.tests'
+        app_label = 'test_project'

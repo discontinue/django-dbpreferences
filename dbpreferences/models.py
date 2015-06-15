@@ -79,7 +79,7 @@ class PreferencesManager(models.Manager):
             form_dict = self.save_form_init(form, current_site, app_label, form_name)
         else:
             form_dict = db_entry.preferences
-
+        assert isinstance(form_dict, dict)
         return form_dict
 
 
@@ -105,7 +105,7 @@ class Preference(models.Model):
     lastupdateby = models.ForeignKey(User, editable=False, null=True, blank=True,
         related_name="%(class)s_lastupdateby", help_text="User as last edit the current page.",)
 
-    def clean_fields(self, exclude):
+    def clean_fields(self, exclude=None):
         """
         validate preferences dict with the form
         """
@@ -117,6 +117,7 @@ class Preference(models.Model):
             f.full_clean()
             if f.is_valid():
                 self.preferences = f.cleaned_data
+                assert isinstance(self.preferences, dict)
             else:
                 errors = []
                 for k, v in f._errors.items():
@@ -166,7 +167,7 @@ class UserSettingsManager(models.Manager):
             user_settings_instance = self.get(user=user)
             user_settings = user_settings_instance.settings
             _USER_SETTINGS_CACHE[user.pk] = (user_settings_instance, user_settings)
-
+        assert isinstance(user_settings, dict)
         return user_settings_instance, user_settings
 
 

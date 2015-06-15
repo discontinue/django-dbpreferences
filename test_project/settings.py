@@ -38,7 +38,7 @@ SITE_ID = 1
 
 STATIC_URL = "/static/"
 
-ROOT_URLCONF = "dbpreferences.tests.test_urls"
+ROOT_URLCONF = "test_project.urls"
 
 import dbpreferences, django
 

@@ -12,7 +12,7 @@ from django.test import TransactionTestCase
 from django.test.client import Client
 from django.contrib.auth.models import User
 
-from BrowserDebug import debug_response
+from .BrowserDebug import debug_response
 
 
 

@@ -107,21 +107,6 @@ def get_authors():
 
 
 
-class RunTests(Command):
-    description = "Run the django test suite"
-    user_options = []
-
-    def initialize_options(self): pass
-    def finalize_options(self): pass
-
-    def run(self):
-        os.environ["DJANGO_SETTINGS_MODULE"] = "dbpreferences.tests.test_settings"
-        import django
-        django.setup()
-        import dbpreferences.tests.run_tests
-        dbpreferences.tests.run_tests.runtests()
-
-
 setup(
     name='django-dbpreferences',
     version=__version__,
@@ -154,5 +139,5 @@ setup(
         "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
         "Operating System :: OS Independent",
     ],
-    cmdclass={"test": RunTests},
+    test_suite="runtests.cli_run",
 )

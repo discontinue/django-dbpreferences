@@ -37,6 +37,7 @@ class SettingsDict(dict):
         else:
             # Use existing data
             settings_dict = self._model_instance.settings
+            assert isinstance(settings_dict, dict)
             dict.update(self, settings_dict)
 
         self._loaded = True

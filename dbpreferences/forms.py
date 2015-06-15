@@ -113,8 +113,10 @@ class DBPreferencesBaseForm(forms.Form):
             self.instance = self.get_db_instance()
         except Preference.DoesNotExist:
             self.data = self.save_form_init()
+            assert isinstance(self.data, dict)
         else:
             self.data = self.instance.preferences
+            assert isinstance(self.data, dict)
 
         # Cleans all of self.data and populates self._errors and self.cleaned_data
         self.is_bound = True
