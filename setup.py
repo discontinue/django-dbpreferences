@@ -120,6 +120,7 @@ setup(
     include_package_data=True,  # include package data under svn source control
     install_requires=[
         "Django",
+        "django-tools",
     ],
     zip_safe=False,
     classifiers=[
