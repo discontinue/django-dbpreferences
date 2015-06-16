@@ -7,12 +7,10 @@
     :copyleft: 2009-2011 by the dbpreferences team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
-import warnings
 
-if __name__ == "__main__":
-    # For doctest only
-    import os
-    os.environ["DJANGO_SETTINGS_MODULE"] = "django.conf.global_settings"
+from __future__ import absolute_import, print_function
+
+import warnings
 
 import sys
 import pprint
@@ -64,14 +62,21 @@ class DictData(dict):
     True
     """
     def __init__(self, value):
-        if isinstance(value, six.string_types):
-            self.value = value
-            super(DictData, self).__init__(data_eval.data_eval(value))
-        elif isinstance(value, dict):
-            self.value = None
+        if isinstance(value, dict):
             super(DictData, self).__init__(value)
         else:
-            raise TypeError("init data is not from type str/basestring or dict (It's type: %r)" % type(value))
+            d = data_eval.data_eval(value)
+            assert isinstance(d, dict)
+            super(DictData, self).__init__(d)
+
+        # if isinstance(value, six.string_types):
+        #     self.value = value
+        #     super(DictData, self).__init__()
+        # elif isinstance(value, dict):
+        #     self.value = None
+        #     super(DictData, self).__init__(value)
+        # else:
+        #     raise TypeError("init data is not from type str/basestring or dict (It's type: %r)" % type(value))
 
     def __repr__(self):
         """ used in django admin form field and in DictModelField.get_db_prep_save() """
@@ -84,6 +89,8 @@ class DictModelField(models.Field):
     """
     A dict field.
     Stores a python dict into a text field.
+
+    https://docs.djangoproject.com/en/1.8/howto/custom-model-fields/#converting-values-to-python-objects
     
     >>> d=DictModelField().to_python('''{"foo":"bar"}''')
     >>> d == {'foo': 'bar'}
@@ -104,17 +111,14 @@ class DictModelField(models.Field):
         return "TextField"
 
     # def __getattribute__(self, item):
-    #     print("DictModelField.getattribute:", item)
-    #     return super(DictModelField, self).__getattribute__(item)
+    #     result = super(DictModelField, self).__getattribute__(item)
+    #     print("DictModelField.getattribute: %20s: %r" % (item, result))
+    #     return result
     #
     # def __getattr__(self, item):
-    #     print("DictModelField.getattr:", item)
-    #     return super(DictModelField, self).__getattr__(item)
-#
-    def _check_null(self, value):
-        if value is None and self.null == False:
-            raise forms.ValidationError(_("This field cannot be null."))
-        return value
+    #     result = super(DictModelField, self).__getattr__(item)
+    #     print("DictModelField.getattr: %20s: %r" % (item, result))
+    #     return result
 
     def to_python(self, value):
         """
@@ -125,15 +129,9 @@ class DictModelField(models.Field):
         to_python() will be not called since 1.8:
         https://docs.djangoproject.com/en/1.8/releases/1.8/#subfieldbase
         """
-        value = self._check_null(value)
-        if value is None:
-            return None
-
-        try:
-            return DictData(value)
-        except DataEvalError as err:
-            msg = "Can't deserialize %r: %s" % (value, err)
-            raise forms.ValidationError(msg)
+        result = self.from_db_value(value)
+        print("\nDictModelField.to_python() return", result, type(result))
+        return result
 
     def from_db_value(self, value, expression=None, connection=None, context=None):
         """
@@ -143,31 +141,37 @@ class DictModelField(models.Field):
 
         from_db_value() is new in new in django 1.8!
         """
+        # print("\nDictModelField.from_db_value()")
         if isinstance(value, dict):
+            # print("is a dict")
             return value
 
-        value = self._check_null(value)
         if value is None:
-            return None
+            if self.null == False:
+                raise forms.ValidationError(_("This field cannot be null."))
+            else:
+                # print("is None")
+                return None
 
         try:
-            return DictData(value)
+            result = DictData(value)
+            # print("\nDictModelField.from_db_value() return", result, type(result))
+            return result
         except DataEvalError as err:
             msg = "Can't deserialize %r: %s" % (value, err)
             raise forms.ValidationError(msg)
 
     def get_prep_value(self, value):
-        if value:
+        """
+        Perform preliminary non-db specific value checks and conversions.
+        """
+        if value is not None:
             return repr(value)
         else:
-            return ""
-
-    def get_db_prep_value(self, value, connection, prepared=False):
-        "Returns field's value prepared for saving into a database."
-        if value:
-            return repr(value)
-        else:
-            return ""
+            if self.null == False:
+                raise forms.ValidationError(_("This field cannot be null."))
+            else:
+                return None
 
     def formfield(self, **kwargs):
         # Always use own form field and widget:

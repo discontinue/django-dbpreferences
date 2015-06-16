@@ -24,6 +24,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.staticfiles',
     'dbpreferences',
+    'test_project',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -46,3 +47,5 @@ TEMPLATE_DIRS = (
     os.path.join(os.path.dirname(dbpreferences.__file__), "templates/"),
     os.path.join(os.path.dirname(django.__file__), "contrib/admin/templates"),
 )
+
+CACHE_BACKEND = 'dummy://'

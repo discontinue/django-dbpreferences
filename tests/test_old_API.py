@@ -10,4 +10,8 @@ class TestOldAPI(unittest.TestCase):
             DictField()
 
         output = buffer.get_output()
-        self.assertIn("FutureWarning: You use the old API! DictField was renamed to DictModelField !", output)
+        # print("\n\n*****", output)
+        self.assertIn(
+            "FutureWarning: You use the old API! DictField was renamed to DictModelField !",
+            output
+        )

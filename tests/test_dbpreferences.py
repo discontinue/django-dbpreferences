@@ -4,6 +4,7 @@
 
     INFO: dbpreferences should be exist in python path!
 """
+
 from django.utils import six
 
 if __name__ == "__main__":
@@ -16,6 +17,8 @@ from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db.models import signals
 
+from django_tools.unittest_utils.unittest_base import BaseTestCase
+
 from dbpreferences import models, forms
 from dbpreferences.fields import DictModelField, DictData, DictFormField
 from dbpreferences.forms import DBPreferencesBaseForm
@@ -23,7 +26,7 @@ from dbpreferences.middleware import SettingsDict
 from dbpreferences.models import Preference, UserSettings
 
 from test_project.preference_forms import UnittestForm, TestModelChoiceForm
-from tests.utils.unittest_base import BaseTestCase
+
 
 
 class FormWithoutMeta(DBPreferencesBaseForm):
@@ -61,6 +64,7 @@ class TestDBPref(BaseTestCase):
 
     def test_form_api(self):
         form = UnittestForm()
+
         # Frist time, the data would be inserted into the database
         self.assertEqual(Preference.objects.count(), 0)
         pref_data = form.get_preferences()
@@ -163,14 +167,14 @@ class TestDictFieldForm(BaseTestCase):
         self.failUnless(isinstance(d, DictData))
 
     def test_repr1(self):
-        """ use get_db_prep_save() with DictData instance """
+        """ use get_prep_value() with DictData instance """
         d = DictData({'foo': 'bar'})
-        s = DictModelField().get_db_prep_save(d)
+        s = DictModelField().get_prep_value(d)
         self.failUnlessEqual(s, "{'foo': 'bar'}")
 
     def test_repr2(self):
-        """ use get_db_prep_save() with normal dict object """
-        s = DictModelField().get_db_prep_save({'foo': 'bar'})
+        """ use get_prep_value() with normal dict object """
+        s = DictModelField().get_prep_value({'foo': 'bar'})
         self.failUnlessEqual(s, "{'foo': 'bar'}")
 
     def test_to_python_cant_empty1(self):
@@ -185,17 +189,17 @@ class TestDictFieldForm(BaseTestCase):
         d = DictModelField(blank=True, null=True)
         self.failUnlessEqual(d.to_python(None), None)
 
-    def test_get_db_prep_save_cant_empty1(self):
+    def test_get_prep_value_cant_empty1(self):
         d = DictModelField()
-        self.failUnlessRaises(ValidationError, d.get_db_prep_save, None)
+        self.failUnlessRaises(ValidationError, d.get_prep_value, None)
 
-    def test_get_db_prep_save_cant_empty2(self):
+    def test_get_prep_value_cant_empty2(self):
         d = DictModelField(blank=True, null=False)
-        self.failUnlessRaises(ValidationError, d.get_db_prep_save, None)
+        self.failUnlessRaises(ValidationError, d.get_prep_value, None)
 
-    def test_get_db_prep_save_can_empty(self):
+    def test_get_prep_value_can_empty(self):
         d = DictModelField(blank=True, null=True)
-        self.failUnlessEqual(d.get_db_prep_save(None), None)
+        self.failUnlessEqual(d.get_prep_value(None), None)
 
     def test_formfield(self):
         d = DictModelField()
@@ -222,6 +226,8 @@ class TestDictFieldForm(BaseTestCase):
 
 class TestUserSettings(BaseTestCase):
     def setUp(self):
+        self.create_testusers()
+
         self._saved = 0
         self._init = 0
         signals.post_save.connect(self._post_save_handler, sender=UserSettings)
@@ -238,7 +244,7 @@ class TestUserSettings(BaseTestCase):
     def test_low_level(self):
         self.failUnlessEqual(len(models._USER_SETTINGS_CACHE), 0)
 
-        user = self.get_user(usertype="staff")
+        user = self._get_user(usertype="staff")
         user_settings = SettingsDict(user)
 
         # .get set the value, if not exist 
@@ -281,7 +287,7 @@ class TestUserSettings(BaseTestCase):
         The load() method in middleware.SettingsDict would be called on every get, getitem, etc.
         But the real loading should only done one time.
         """
-        user = self.get_user(usertype="staff")
+        user = self._get_user(usertype="staff")
         user_settings = SettingsDict(user)
         self.failUnlessEqual(models._USER_SETTINGS_CACHE.cache_hit, 0)
         user_settings.get("foo", "bar")
@@ -357,7 +363,7 @@ class TestUserSettings(BaseTestCase):
 
     def test_issues1(self):
         """ https://github.com/jedie/django-dbpreferences/issues/1 """
-        user = self.get_user(usertype="staff")
+        user = self._get_user(usertype="staff")
         user_settings = SettingsDict(user)
         user_settings["Foo"] = "Bar"
         user_settings.save()

@@ -25,13 +25,23 @@ from __future__ import absolute_import, print_function
 import os
 import sys
 
+os.environ['DJANGO_SETTINGS_MODULE'] = os.environ.get(
+    'DJANGO_SETTINGS_MODULE', "test_project.settings"
+)
+
 import django
 from django.conf import settings
 from django.test.utils import get_runner
 
 
 def run_unittests(test_labels=None):
-    django.setup()
+    print("Django v%s" % django.get_version())
+
+    # keep debug print() "in sync" with stderr output:
+    sys.stdout = sys.stderr
+
+    if hasattr(django, "setup"):
+        django.setup()
 
     TestRunner = get_runner(settings)
     test_runner = TestRunner(
@@ -47,12 +57,11 @@ def run_unittests(test_labels=None):
 
 
 def cli_run():
-    os.environ['DJANGO_SETTINGS_MODULE'] = os.environ.get('DJANGO_SETTINGS_MODULE', "test_project.settings")
-
     if "-v" in sys.argv or "--verbosity" in sys.argv:
         print("DJANGO_SETTINGS_MODULE=%r" % os.environ['DJANGO_SETTINGS_MODULE'])
 
-    run_unittests(test_labels=sys.argv[1:])
+    test_labels=[label for label in sys.argv[1:] if not label.startswith("-")]
+    run_unittests(test_labels)
 
 
 if __name__ == "__main__":

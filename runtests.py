@@ -21,12 +21,16 @@
 """
 
 from __future__ import absolute_import, print_function
+
 import os
+
+os.environ['DJANGO_SETTINGS_MODULE'] = os.environ.get(
+    'DJANGO_SETTINGS_MODULE', "test_project.settings"
+)
 
 from tests.runtests import cli_run
 
 if __name__ == "__main__":
-    os.environ['DJANGO_SETTINGS_MODULE'] = os.environ.get('DJANGO_SETTINGS_MODULE', "test_project.settings")
     cli_run()
 
 
