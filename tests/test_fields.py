@@ -1,15 +1,15 @@
 import unittest
-from dbpreferences.fields import DictField, DictData, DictFormField
+from dbpreferences.fields import DictModelField, DictData, DictFormField
 from django.core.exceptions import ValidationError
 
 
 class TestDictFiels(unittest.TestCase):
     def test(self):
-        d=DictField().to_python('''{"foo":"bar"}''')
+        d=DictModelField().to_python('''{"foo":"bar"}''')
         self.assertEqual(d, {'foo': 'bar'})
         self.assertIsInstance(d, DictData)
 
-        s = DictField().get_db_prep_save(d)
+        s = DictModelField().get_db_prep_save(d)
         self.assertEqual(s, "{'foo': 'bar'}")
 
         print("OK")
@@ -17,11 +17,11 @@ class TestDictFiels(unittest.TestCase):
     def test_not_null(self):
         self.assertRaises(
             ValidationError,
-            DictField().to_python, None
+            DictModelField().to_python, None
         )
 
     def test_clean(self):
-        f = DictField().formfield()
+        f = DictModelField().formfield()
         d = f.clean('''{"foo":"bar"}''')
         self.assertEqual(d, {'foo': 'bar'})
 

@@ -30,7 +30,7 @@ from django.contrib.auth.models import User, Group
 from django.core.exceptions import ValidationError
 
 from dbpreferences.tools import forms_utils, easy_import, data_eval
-from dbpreferences.fields import DictField
+from dbpreferences.fields import DictModelField, DictField
 
 # The filename in witch the form should be stored:
 PREF_FORM_FILENAME = "preference_forms"
@@ -97,7 +97,7 @@ class Preference(models.Model):
     form_name = models.CharField(max_length=128, editable=False,
         help_text="preference form class name")
 
-    preferences = DictField(null=False, blank=False, #editable=False,
+    preferences = DictModelField(null=False, blank=False, #editable=False,
         help_text="serialized preference form data dictionary")
 
     createtime = models.DateTimeField(auto_now_add=True, help_text="Create time",)
@@ -175,7 +175,7 @@ class UserSettings(models.Model):
     objects = UserSettingsManager()
 
     user = models.OneToOneField(User, related_name="%(class)s_user")
-    settings = DictField(null=False, blank=False,
+    settings = DictModelField(null=False, blank=False,
         help_text="serialized user settings data dictionary")
 
     createtime = models.DateTimeField(auto_now_add=True, help_text="Create time",)

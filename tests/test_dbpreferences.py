@@ -17,7 +17,7 @@ from django.core.urlresolvers import reverse
 from django.db.models import signals
 
 from dbpreferences import models, forms
-from dbpreferences.fields import DictField, DictData, DictFormField
+from dbpreferences.fields import DictModelField, DictData, DictFormField
 from dbpreferences.forms import DBPreferencesBaseForm
 from dbpreferences.middleware import SettingsDict
 from dbpreferences.models import Preference, UserSettings
@@ -158,47 +158,47 @@ class TestDBPref(BaseTestCase):
 class TestDictFieldForm(BaseTestCase):
     """ Tests for dbpreferences.fields objects. """
     def test_data_eval1(self):
-        d = DictField().to_python('''{"foo":"bar"}''')
+        d = DictModelField().to_python('''{"foo":"bar"}''')
         self.failUnlessEqual(d, {'foo': 'bar'})
         self.failUnless(isinstance(d, DictData))
 
     def test_repr1(self):
         """ use get_db_prep_save() with DictData instance """
         d = DictData({'foo': 'bar'})
-        s = DictField().get_db_prep_save(d)
+        s = DictModelField().get_db_prep_save(d)
         self.failUnlessEqual(s, "{'foo': 'bar'}")
 
     def test_repr2(self):
         """ use get_db_prep_save() with normal dict object """
-        s = DictField().get_db_prep_save({'foo': 'bar'})
+        s = DictModelField().get_db_prep_save({'foo': 'bar'})
         self.failUnlessEqual(s, "{'foo': 'bar'}")
 
     def test_to_python_cant_empty1(self):
-        d = DictField()
+        d = DictModelField()
         self.failUnlessRaises(ValidationError, d.to_python, None)
 
     def test_to_python_cant_empty2(self):
-        d = DictField(blank=True, null=False)
+        d = DictModelField(blank=True, null=False)
         self.failUnlessRaises(ValidationError, d.to_python, None)
 
     def test_to_python_can_empty(self):
-        d = DictField(blank=True, null=True)
+        d = DictModelField(blank=True, null=True)
         self.failUnlessEqual(d.to_python(None), None)
 
     def test_get_db_prep_save_cant_empty1(self):
-        d = DictField()
+        d = DictModelField()
         self.failUnlessRaises(ValidationError, d.get_db_prep_save, None)
 
     def test_get_db_prep_save_cant_empty2(self):
-        d = DictField(blank=True, null=False)
+        d = DictModelField(blank=True, null=False)
         self.failUnlessRaises(ValidationError, d.get_db_prep_save, None)
 
     def test_get_db_prep_save_can_empty(self):
-        d = DictField(blank=True, null=True)
+        d = DictModelField(blank=True, null=True)
         self.failUnlessEqual(d.get_db_prep_save(None), None)
 
     def test_formfield(self):
-        d = DictField()
+        d = DictModelField()
         f = d.formfield()
         self.failUnless(isinstance(f, DictFormField))
 

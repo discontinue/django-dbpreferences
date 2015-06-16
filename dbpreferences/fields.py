@@ -7,7 +7,7 @@
     :copyleft: 2009-2011 by the dbpreferences team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
-
+import warnings
 
 if __name__ == "__main__":
     # For doctest only
@@ -74,37 +74,42 @@ class DictData(dict):
             raise TypeError("init data is not from type str/basestring or dict (It's type: %r)" % type(value))
 
     def __repr__(self):
-        """ used in django admin form field and in DictField.get_db_prep_save() """
+        """ used in django admin form field and in DictModelField.get_db_prep_save() """
         return pprint.pformat(dict(self))
 
 
-class DictField(models.TextField):
+class DictModelField(models.Field):
+    description = "DictModelField"
+
     """
     A dict field.
     Stores a python dict into a text field.
     
-    >>> d=DictField().to_python('''{"foo":"bar"}''')
+    >>> d=DictModelField().to_python('''{"foo":"bar"}''')
     >>> d == {'foo': 'bar'}
     True
     >>> isinstance(d, DictData)
     True
-    >>> DictField().get_db_prep_save(d) == "{'foo': 'bar'}"
+    >>> DictModelField().get_db_prep_save(d) == "{'foo': 'bar'}"
     True
 
-    >>> f = DictField().formfield()
+    >>> f = DictModelField().formfield()
     >>> f.clean('''{"foo":"bar"}''') == {'foo': 'bar'}
     True
     """
     # https://docs.djangoproject.com/en/1.8/releases/1.8/#subfieldbase
     __metaclass__ = models.SubfieldBase # will be removed in Django 2.0
 
+    def get_internal_type(self):
+        return "TextField"
+
     # def __getattribute__(self, item):
-    #     print("DictField.getattribute:", item)
-    #     return super(DictField, self).__getattribute__(item)
+    #     print("DictModelField.getattribute:", item)
+    #     return super(DictModelField, self).__getattribute__(item)
     #
     # def __getattr__(self, item):
-    #     print("DictField.getattr:", item)
-    #     return super(DictField, self).__getattr__(item)
+    #     print("DictModelField.getattr:", item)
+    #     return super(DictModelField, self).__getattr__(item)
 #
     def _check_null(self, value):
         if value is None and self.null == False:
@@ -167,5 +172,35 @@ class DictField(models.TextField):
     def formfield(self, **kwargs):
         # Always use own form field and widget:
         kwargs['form_class'] = DictFormField
-        return super(DictField, self).formfield(**kwargs)
-#
+        return super(DictModelField, self).formfield(**kwargs)
+
+
+class DictField(object):
+    def __new__(cls, *args, **kwargs):
+        warnings.warn(
+            "You use the old API! DictField was renamed to DictModelField !",
+            FutureWarning,
+            stacklevel=2
+        )
+        return DictModelField()
+
+
+# class DictField(DictModelField):
+#     def __new__(cls, *args, **kwargs):
+#         warnings.warn(
+#             "You use the old API! DictField was renamed to DictModelField !",
+#             FutureWarning,
+#             stacklevel=2
+#         )
+#         return DictModelField.__new__(cls, *args, **kwargs)
+
+
+# class DictField(DictModelField):
+#     def __new__(cls, *args, **kwargs):
+#         warnings.warn(
+#             "You use the old API! DictField was renamed to DictModelField !",
+#             FutureWarning,
+#             stacklevel=2
+#         )
+#         return super(DictField, cls).__new__(cls, *args, **kwargs)
+
