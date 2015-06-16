@@ -175,32 +175,11 @@ class DictModelField(models.Field):
         return super(DictModelField, self).formfield(**kwargs)
 
 
-class DictField(object):
-    def __new__(cls, *args, **kwargs):
-        warnings.warn(
-            "You use the old API! DictField was renamed to DictModelField !",
-            FutureWarning,
-            stacklevel=2
-        )
-        return DictModelField()
-
-
-# class DictField(DictModelField):
-#     def __new__(cls, *args, **kwargs):
-#         warnings.warn(
-#             "You use the old API! DictField was renamed to DictModelField !",
-#             FutureWarning,
-#             stacklevel=2
-#         )
-#         return DictModelField.__new__(cls, *args, **kwargs)
-
-
-# class DictField(DictModelField):
-#     def __new__(cls, *args, **kwargs):
-#         warnings.warn(
-#             "You use the old API! DictField was renamed to DictModelField !",
-#             FutureWarning,
-#             stacklevel=2
-#         )
-#         return super(DictField, cls).__new__(cls, *args, **kwargs)
-
+def DictField(*args, **kwargs):
+    "TODO: remove this old API support in future!"
+    warnings.warn(
+        "You use the old API! DictField was renamed to DictModelField !",
+        FutureWarning,
+        stacklevel=2
+    )
+    return DictModelField(*args, **kwargs)
