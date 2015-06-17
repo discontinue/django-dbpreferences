@@ -108,6 +108,7 @@ class TestDBPref(BaseTestCase):
         pk = Preference.objects.all()[0].pk
         url = reverse("admin:dbpref_edit_form", kwargs={"pk":pk})
 
+        self.create_testusers()
         self.login(usertype="staff")
 
         response = self.client.get(url)
