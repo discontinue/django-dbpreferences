@@ -138,14 +138,8 @@ class TestDictModelField(django.test.TestCase):
     @unittest.expectedFailure # FIXME!
     def test_values(self):
         """
-        FIXME: queryset.values() will always return the string and not the dict.
-
-        if .values() used: Theses methods will be not called:
-
-            DictModelField.from_db_value()
-            DictModelField.to_python()
-
-        http://www.python-forum.de/viewtopic.php?f=7&t=36503 (de)
+        FIXME: Will fail, because of:
+            https://code.djangoproject.com/ticket/9619
         """
         with self.assertNumQueries(2):
             # with PrintQueries("test_values(): 2"):

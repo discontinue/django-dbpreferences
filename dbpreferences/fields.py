@@ -92,6 +92,9 @@ class DictModelField(models.Field):
     A dict field.
     Stores a python dict into a text field.
 
+    FIXME: Will not work with .values(...), because of:
+        https://code.djangoproject.com/ticket/9619
+
     https://docs.djangoproject.com/en/1.8/howto/custom-model-fields/#converting-values-to-python-objects
     
     >>> d=DictModelField().to_python('''{"foo":"bar"}''')
