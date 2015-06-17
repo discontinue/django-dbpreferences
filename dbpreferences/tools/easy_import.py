@@ -6,20 +6,14 @@
 
     a easy to use __import__
 
-    Last commit info:
-    ~~~~~~~~~~~~~~~~~
-    $LastChangedDate: 2009-04-18 10:58:43 +0100 (Sa, 18 Apr 2009) $
-    $Rev: 1903 $
-    $Author: JensDiemer $
+    TODO: Check import helper in django !
 
-    :copyleft: 2008 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2008-2015 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
 from django.utils import six
 
-#______________________________________________________________________________
-# internal import functions
 
 def import2(from_name, fromlist=None, globals={}, locals={}):
     """
@@ -50,7 +44,10 @@ def import2(from_name, fromlist=None, globals={}, locals={}):
     >>> try:
     ...     import2("doesnentexisst")
     ... except ImportError as err:
-    ...     err.args == ("No module named 'doesnentexisst'",)
+    ...     if six.PY3:
+    ...         err.args == ("No module named 'doesnentexisst'",)
+    ...     else:
+    ...         err.args == ("No module named doesnentexisst",)
     True
 
     >>> try:
@@ -102,7 +99,10 @@ def import3(from_name, object_name):
     >>> try:
     ...     import3(u"A", u"B")
     ... except ImportError as err:
-    ...     err.args == ("Can't import 'B' from 'A': No module named 'A'",)
+    ...     if six.PY3:
+    ...         err.args == ("Can't import 'B' from 'A': No module named 'A'",)
+    ...     else:
+    ...         err.args == ("Can't import 'B' from 'A': No module named A",)
     True
     """
     try:
@@ -117,10 +117,3 @@ def import3(from_name, object_name):
         ))
 
 
-
-if __name__ == "__main__":
-    print("runnint doctest for %s" % __file__)
-    verbose = False
-    import doctest
-    doctest.testmod(verbose=verbose)
-    print("--- END ---")
