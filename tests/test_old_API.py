@@ -1,17 +1,17 @@
 import unittest
-
-from django_tools.unittest_utils.stdout_redirect import StdoutStderrBuffer
+import warnings
 
 
 class TestOldAPI(unittest.TestCase):
     def test_dict_field(self):
-        with StdoutStderrBuffer() as buffer:
+        with warnings.catch_warnings(record=True) as warns:
+            warnings.simplefilter('always') # prevent warnings from appearing as errors
+
             from dbpreferences.fields import DictField
             DictField()
 
-        output = buffer.get_output()
-        # print("\n\n*****", output)
-        self.assertIn(
-            "FutureWarning: You use the old API! DictField was renamed to DictModelField !",
-            output
-        )
+            self.assertEqual(len(warns), 1)
+            msg = str(warns[0].message)
+            self.assertEqual(msg,
+                "You use the old API! DictField was renamed to DictModelField !"
+            )
