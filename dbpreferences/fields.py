@@ -83,6 +83,8 @@ class DictData(dict):
         return pprint.pformat(dict(self))
 
 
+# https://docs.djangoproject.com/en/1.8/releases/1.8/#subfieldbase
+@six.add_metaclass(models.SubfieldBase) # SubfieldBase will be removed in Django 2.0
 class DictModelField(models.Field):
     description = "DictModelField"
 
@@ -104,8 +106,6 @@ class DictModelField(models.Field):
     >>> f.clean('''{"foo":"bar"}''') == {'foo': 'bar'}
     True
     """
-    # https://docs.djangoproject.com/en/1.8/releases/1.8/#subfieldbase
-    __metaclass__ = models.SubfieldBase # will be removed in Django 2.0
 
     def get_internal_type(self):
         return "TextField"
