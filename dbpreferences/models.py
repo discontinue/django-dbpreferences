@@ -14,11 +14,6 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
-if __name__ == "__main__":
-    # For doctest only
-    import os
-    os.environ["DJANGO_SETTINGS_MODULE"] = "django.conf.global_settings"
-
 import sys
 import pprint
 
@@ -28,6 +23,7 @@ from django.contrib.sites.models import Site
 from django.utils.translation import ugettext as _
 from django.contrib.auth.models import User, Group
 from django.core.exceptions import ValidationError
+from django.utils.encoding import python_2_unicode_compatible
 
 from dbpreferences.tools import forms_utils, easy_import, data_eval
 from dbpreferences.fields import DictModelField, DictField
@@ -83,6 +79,8 @@ class PreferencesManager(models.Manager):
         return form_dict
 
 
+
+@python_2_unicode_compatible
 class Preference(models.Model):
     """
     Plugin preferences
@@ -133,7 +131,7 @@ class Preference(models.Model):
         form = easy_import.import3(from_name, self.form_name)
         return form
 
-    def __unicode__(self):
+    def __str__(self):
         return u"Preferences for %s.%s.%s" % (self.site, self.app_label, self.form_name)
 
     class Meta:
@@ -198,9 +196,4 @@ class UserSettings(models.Model):
         verbose_name = verbose_name_plural = "User settings"
 
 
-if __name__ == "__main__":
-    import doctest
-    doctest.testmod(
-        verbose=False
-    )
-    print("DocTest end.")
+
