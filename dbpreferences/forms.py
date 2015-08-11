@@ -141,7 +141,6 @@ class DBPreferencesBaseForm(forms.Form):
                 )
             )
 
-        print("XXX", self.cleaned_data, type(self.cleaned_data))
         assert isinstance(self.cleaned_data, dict)
         return self.cleaned_data
 

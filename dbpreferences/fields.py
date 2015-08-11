@@ -133,7 +133,7 @@ class DictModelField(models.Field):
         https://docs.djangoproject.com/en/1.8/releases/1.8/#subfieldbase
         """
         result = self.from_db_value(value)
-        print("\nDictModelField.to_python() return", result, type(result))
+        # print("\nDictModelField.to_python() return", result, type(result))
         return result
 
     def from_db_value(self, value, expression=None, connection=None, context=None):
