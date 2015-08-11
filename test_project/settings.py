@@ -33,6 +33,8 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
 
     'dbpreferences.middleware.DBPreferencesMiddleware',
+
+    #'django_tools.middlewares.QueryLogMiddleware.QueryLogMiddleware',
 )
 
 SITE_ID = 1

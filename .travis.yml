@@ -1,12 +1,14 @@
 # Config file for automatic testing at travis-ci.org
 
 language: python
+sudo: false
 
 python:
     - "2.7"
     - "3.4"
 
 env:
+    - DJANGO=1.6
     - DJANGO=1.7
     - DJANGO=1.8
 
@@ -16,17 +18,16 @@ env:
 #    - "sh -e /etc/init.d/xvfb start"
 
 install:
-    - pip install .
-    - pip install -q Django==$DJANGO --use-mirrors
+    - pip install --upgrade pip
+    - pip install . --no-deps
+    - pip install Django==$DJANGO.\* django-tools
     - pip install coveralls
 
 script:
-    #~ - PYTHONPATH=$PYTHONPATH:$PWD python runtests.py
-    #~ - coverage run ./setup.py test
-    - coverage run runtests.py
+    - coverage run ./setup.py test --verbosity=2
 
 after_success:
-    coveralls
+    - coveralls
 
 notifications:
     irc: "irc.freenode.org#pylucid"
