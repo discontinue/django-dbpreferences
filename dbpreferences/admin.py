@@ -4,14 +4,7 @@
     dbpreferences.admin
     ~~~~~~~~~~~~~~~~~~~
 
-
-    Last commit info:
-    ~~~~~~~~~~~~~~~~~
-    $LastChangedDate$
-    $Rev$
-    $Author$
-
-    :copyleft: 2008 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2008-2015 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 from django.contrib import admin
@@ -79,10 +72,10 @@ class PreferenceAdmin(admin.ModelAdmin):
                 msg = "Preferences %s updated." % obj
                 self.log_change(request, obj, msg)
 
-                if request.POST.has_key("_continue"):
+                if "_continue" in request.POST:
                     msg += ' ' + _("You may edit it again below.")
 
-                    if request.REQUEST.has_key('_popup'):
+                    if '_popup' in request.REQUEST:
                         next_url = request.path + "?_popup=1"
                     else:
                         next_url = request.path
