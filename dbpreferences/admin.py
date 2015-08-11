@@ -7,6 +7,10 @@
     :copyleft: 2008-2015 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
+
+import logging
+
+from django.contrib.admin.sites import AlreadyRegistered
 from django.contrib import admin
 from django.template import RequestContext
 from django.http import HttpResponseRedirect
@@ -19,7 +23,9 @@ from django.shortcuts import get_object_or_404, render_to_response
 from dbpreferences.models import Preference
 from dbpreferences.tools import forms_utils
 
-#------------------------------------------------------------------------------
+
+log = logging.getLogger(__name__)
+
 
 class PreferenceAdmin(admin.ModelAdmin):
     list_display = ("id", "site", "app_label", "edit_link", "raw_edit", "lastupdatetime", "lastupdateby")
@@ -110,5 +116,7 @@ class PreferenceAdmin(admin.ModelAdmin):
         return my_urls + urls
 
 
-
-admin.site.register(Preference, PreferenceAdmin)
+try:
+    admin.site.register(Preference, PreferenceAdmin)
+except AlreadyRegistered as err:
+    log.debug("FIXME: %s" % err)
