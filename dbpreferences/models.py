@@ -168,7 +168,7 @@ class UserSettingsManager(models.Manager):
         assert isinstance(user_settings, dict)
         return user_settings_instance, user_settings
 
-
+@python_2_unicode_compatible
 class UserSettings(models.Model):
     objects = UserSettingsManager()
 
@@ -188,7 +188,7 @@ class UserSettings(models.Model):
         _USER_SETTINGS_CACHE.clear()
         return super(UserSettings, self).save(*args, **kwargs)
 
-    def __unicode__(self):
+    def __str__(self):
         return u"UserSettings for %r: %r" % (self.user, self.settings)
 
     class Meta:
